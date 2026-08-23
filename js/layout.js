@@ -111,9 +111,9 @@
           <h2 id="final-cta-title">Cuéntanos cuándo, dónde y con cuántos invitados.</h2>
           <p class="muted">Nosotros diseñamos el menú, llevamos la parrilla y encendemos la experiencia.</p>
           <div class="hero-actions">
-            <a class="btn btn-ember" href="cotizar.html?origen=social">Cotizar mi celebración</a>
-            <a class="btn btn-gold" href="empresas.html">Solicitar propuesta empresarial</a>
-            <a class="btn btn-ghost js-track-wa" data-track="wa_cta_click" href="${wa}" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+            <a class="btn btn-gold" data-cta="company" href="empresas.html">Solicitar propuesta empresarial</a>
+            <a class="btn btn-ember" data-cta="social" href="cotizar.html?origen=social">Cotizar mi celebración</a>
+            <a class="btn btn-ghost js-track-wa" data-track="whatsapp_click" href="${wa}" target="_blank" rel="noopener">Hablar por WhatsApp</a>
           </div>
         </div>
       </section>`;
@@ -139,11 +139,10 @@
                 `<a href="${href}" class="${page === id ? "active" : ""}"${page === id ? ' aria-current="page"' : ""}>${label}</a>`
             )
             .join("")}
-          <a class="btn btn-gold btn-wa js-track-wa" data-track="wa_header_click" href="${cfg.waUrl(
+          <a class="btn btn-ember btn-wa js-track-wa" data-track="whatsapp_click" href="${cfg.waUrl(
             `Hola ${cfg.brand}, quiero información de un evento con asado.`
           )}" target="_blank" rel="noopener">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 2.1 17.2L1 23l5.9-1.1A11 11 0 0 0 20.5 3.5zm-8.5 17a9 9 0 0 1-4.6-1.3l-.3-.2-3.5.7.7-3.4-.2-.3A9 9 0 1 1 12 20.5z"/></svg>
-            WhatsApp ${cfg.phoneDisplay}
+            Hablar por WhatsApp
           </a>
         </nav>
       </div>
@@ -172,7 +171,8 @@
         <div>
           <h2>Cotiza tu evento</h2>
           <p class="muted">Elige un presupuesto por persona o arma el menú. Recibes una estimación inicial para enviar por WhatsApp.</p>
-          <a class="btn btn-ember" href="cotizar.html">Cotizar mi evento</a>
+          <p><a class="btn btn-gold" data-cta="company" href="empresas.html">Solicitar propuesta empresarial</a></p>
+          <p><a class="btn btn-ember" data-cta="social" href="cotizar.html?origen=social">Cotizar mi celebración</a></p>
         </div>
       </div>
       <p class="wrap legal">© ${new Date().getFullYear()} ${cfg.brand}. Todos los derechos reservados.</p>
@@ -201,6 +201,7 @@
   function setMenu(open) {
     if (!menu || !toggle) return;
     menu.classList.toggle("open", open);
+    document.body.classList.toggle("nav-open", open);
     toggle.setAttribute("aria-expanded", String(open));
     toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
   }
@@ -215,7 +216,13 @@
 
   document.addEventListener("click", (event) => {
     const waLink = event.target.closest(".js-track-wa");
-    if (waLink) cfg.track(waLink.dataset.track || "wa_click");
+    if (waLink) cfg.track("whatsapp_click", { source: waLink.dataset.track || "whatsapp_click" });
+
+    const companyCta = event.target.closest("[data-cta='company']");
+    if (companyCta) cfg.track("cta_company_click");
+
+    const socialCta = event.target.closest("[data-cta='social']");
+    if (socialCta) cfg.track("cta_social_click");
 
     const social = event.target.closest(".js-track-social");
     if (social) cfg.track("social_click", { network: social.dataset.network });
@@ -226,11 +233,34 @@
 
   const trustRoot = document.getElementById("site-proof");
   if (trustRoot) {
-    const studies = cfg.caseStudies || [];
-    const quotes = cfg.testimonials || [];
-    const logos = cfg.clientLogos || [];
-    if (!studies.length && !quotes.length && !logos.length) {
-      trustRoot.remove();
+    const quotes = (cfg.testimonials || []).filter((item) => cfg.hasValue(item.quote));
+    if (!quotes.length) {
+      trustRoot.hidden = true;
+      trustRoot.setAttribute("aria-hidden", "true");
+    } else {
+      trustRoot.hidden = false;
+      trustRoot.removeAttribute("aria-hidden");
+      trustRoot.innerHTML = `
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow">Confianza</p>
+            <h2>Eventos que ya encendimos</h2>
+          </div>
+          <div class="proof-grid">
+            ${quotes
+              .map((item) => {
+                const meta = [item.eventType, item.guests, item.location, item.service]
+                  .filter((value) => cfg.hasValue(value))
+                  .join(" · ");
+                const photo = cfg.hasValue(item.photo)
+                  ? `<img src="${item.photo}" alt="${item.eventType || "Evento Casa Brasada"}" width="640" height="400" loading="lazy">`
+                  : "";
+                const name = cfg.hasValue(item.name) ? `<p><strong>${item.name}</strong></p>` : "";
+                return `<article class="card proof-card">${photo}<div class="card-body"><p>${item.quote}</p>${name}${meta ? `<p class="proof-meta">${meta}</p>` : ""}</div></article>`;
+              })
+              .join("")}
+          </div>
+        </div>`;
     }
   }
 

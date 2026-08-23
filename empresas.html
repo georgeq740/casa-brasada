@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Asados para eventos empresariales en Bogotá | Casa Brasada</title>
   <meta name="description" content="Parrilla en vivo para integraciones, celebraciones corporativas, lanzamientos y fiestas de fin de año en Bogotá. Solicita una propuesta empresarial.">
-  <meta name="theme-color" content="#120d0b">
+  <meta name="theme-color" content="#100B08">
   <link rel="canonical" href="https://georgeq740.github.io/casa-brasada/empresas.html">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
@@ -32,10 +32,10 @@
       <div class="wrap">
         <p class="eyebrow">Eventos empresariales</p>
         <h1>Una experiencia de asado para reunir, celebrar y conectar equipos.</h1>
-        <p class="muted">Diseñamos propuestas para integraciones, celebraciones de fin de año, lanzamientos, actividades de bienestar y encuentros con clientes. Coordinamos el menú y los servicios requeridos según el lugar, la fecha y el número de asistentes.</p>
+        <p class="muted">Diseñamos propuestas para integraciones, celebraciones de fin de año, actividades de bienestar, lanzamientos y encuentros con clientes. Coordinamos el menú, el personal y la logística necesaria según las condiciones de tu evento.</p>
         <div class="hero-actions">
-          <a class="btn btn-ember" href="#solicitud-empresarial">Solicitar propuesta empresarial</a>
-          <a class="btn btn-ghost js-track-wa" data-track="wa_cta_click" id="empresas-advisor" href="#" target="_blank" rel="noopener">Hablar con un asesor</a>
+          <a class="btn btn-gold" data-cta="company" href="#solicitud-empresarial">Solicitar propuesta empresarial</a>
+          <a class="btn btn-ghost js-track-wa" data-track="whatsapp_click" id="empresas-advisor" href="#" target="_blank" rel="noopener">Hablar por WhatsApp</a>
         </div>
       </div>
     </section>
@@ -50,19 +50,19 @@
         <div class="grid-3">
           <article class="card card-body">
             <h3>Integraciones de equipos</h3>
-            <p class="muted">Una estación de parrilla para compartir, según el número de asistentes y el lugar.</p>
+            <p class="muted">Una estación de parrilla para compartir y conectar al equipo.</p>
           </article>
           <article class="card card-body">
             <h3>Despedidas de fin de año</h3>
-            <p class="muted">Propuestas para cerrar el año con menú y servicios coordinados en una sola conversación.</p>
+            <p class="muted">Una propuesta para cerrar el año con menú y servicios coordinados.</p>
           </article>
           <article class="card card-body">
             <h3>Actividades de bienestar</h3>
-            <p class="muted">Encuentros informales con asado en vivo, sujetos a fecha, ubicación y presupuesto.</p>
+            <p class="muted">Encuentros informales alrededor del asado en vivo.</p>
           </article>
           <article class="card card-body">
             <h3>Lanzamientos</h3>
-            <p class="muted">Acompañamiento gastronómico para presentaciones o activaciones, según la propuesta.</p>
+            <p class="muted">Acompañamiento gastronómico para presentaciones o activaciones.</p>
           </article>
           <article class="card card-body">
             <h3>Celebraciones de resultados</h3>
@@ -70,7 +70,7 @@
           </article>
           <article class="card card-body">
             <h3>Encuentros con clientes</h3>
-            <p class="muted">Hospitalidad alrededor de la parrilla para reuniones y relaciones comerciales.</p>
+            <p class="muted">Hospitalidad alrededor de la parrilla para reuniones comerciales.</p>
           </article>
         </div>
       </div>
@@ -81,20 +81,21 @@
         <div class="section-head">
           <p class="eyebrow">Alcance</p>
           <h2>Qué podemos coordinar</h2>
-          <p class="muted">Podemos incluir estos servicios según la propuesta. Cada ítem queda sujeto a confirmación.</p>
+          <p class="muted">Podemos coordinar estos servicios en una sola conversación.</p>
         </div>
         <ul class="checklist">
-          <li>Parrilla en vivo, según el lugar del evento</li>
-          <li>Menú por persona, de acuerdo con presupuesto y número de asistentes</li>
-          <li>Parrilleros, según la operación requerida</li>
-          <li>Personal de servicio, según invitados y alcance</li>
-          <li>Mesas y sillas, si el lugar lo requiere</li>
-          <li>Menaje, según el formato de servicio</li>
-          <li>Bebidas, como complemento opcional</li>
-          <li>Montaje y desmontaje, sujeto a confirmación</li>
-          <li>Transporte según ubicación</li>
-          <li>Opciones para restricciones alimentarias, sujetas a confirmación</li>
+          <li>Parrilla en vivo</li>
+          <li>Menú por persona</li>
+          <li>Parrilleros</li>
+          <li>Personal de servicio</li>
+          <li>Mesas y sillas</li>
+          <li>Menaje</li>
+          <li>Bebidas</li>
+          <li>Montaje y desmontaje</li>
+          <li>Transporte</li>
+          <li>Opciones para restricciones alimentarias</li>
         </ul>
+        <p class="commercial-note">La disponibilidad y los costos finales se validan según la fecha, ubicación, número de asistentes y servicios seleccionados.</p>
       </div>
     </section>
 
@@ -153,6 +154,13 @@
           <label for="corp-role">Cargo o área</label>
           <input id="corp-role" name="role" required>
 
+          <label for="corp-invoice">¿Requiere factura?</label>
+          <select id="corp-invoice" name="invoice">
+            <option value="Por confirmar">Por confirmar</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+          </select>
+
           <label for="corp-event">Tipo de evento</label>
           <select id="corp-event" name="event" required>
             <option value="">Selecciona una opción</option>
@@ -193,13 +201,12 @@
           <label for="corp-notes">Observaciones</label>
           <textarea id="corp-notes" name="notes" rows="3"></textarea>
 
-          <button class="btn btn-ember" type="submit">Solicitar propuesta empresarial por WhatsApp</button>
+          <button class="btn btn-gold" type="submit">Solicitar propuesta empresarial</button>
         </form>
         <aside class="panel">
           <p class="eyebrow">Siguiente paso</p>
           <h2>El siguiente paso es construir tu propuesta</h2>
-          <p class="muted">Envíanos el requerimiento por WhatsApp. Nuestro equipo confirmará disponibilidad, alcance, logística y condiciones comerciales antes de formalizar el servicio. También puedes comenzar por el cotizador de menú.</p>
-          <p><a class="btn btn-gold" href="cotizar.html?evento=empresarial&amp;origen=empresas">Abrir cotizador corporativo</a></p>
+          <p class="muted">Envíanos el requerimiento por WhatsApp. Nuestro equipo confirmará disponibilidad, alcance, logística y condiciones comerciales antes de formalizar el servicio.</p>
         </aside>
       </div>
     </section>

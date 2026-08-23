@@ -89,6 +89,7 @@
     }
 
     if (firstError.length) {
+      cfg.track("form_validation_error", { form: "empresas", fields: firstError.length });
       firstError[0].focus?.();
       return false;
     }
@@ -111,6 +112,7 @@
       "",
       "Datos de la empresa",
       `Empresa: ${String(data.get("company") || "").trim()}`,
+      `Facturación: ${data.get("invoice") || "Por confirmar"}`,
       "",
       "Información del evento",
       `Tipo de evento: ${data.get("event")}`,
