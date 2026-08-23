@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cotizar plato de asado | Casa Brasada</title>
+  <meta name="description" content="Arma tu plato de asado según el presupuesto. Ejemplo: $40.000 incluyen 250 g de res, 2 papas saladas, yuca, arepa boyacense y bebida.">
+  <meta name="theme-color" content="#120d0b">
+  <link rel="canonical" href="https://casabrasada.com/cotizar.html">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta property="og:title" content="Cotiza tu asado | Casa Brasada">
+  <meta property="og:description" content="Ingresa el valor del plato y mira cómo se arma la parrilla. Envía la cotización por WhatsApp.">
+  <meta property="og:image" content="https://casabrasada.com/assets/social/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="cotizar">
+  <header id="site-header"></header>
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Cotizador de plato</p>
+      <h1>Pon el precio. Nosotros armamos la brasa.</h1>
+      <p class="muted">Mueve el valor por persona y el plato se construye en vivo. Al final, la cotización se va por WhatsApp.</p>
+    </div>
+  </section>
+  <section>
+    <div class="wrap form-grid">
+      <form id="quote-form" class="panel">
+        <label for="name">Tu nombre</label>
+        <input id="name" name="name" required placeholder="Ana Pérez">
+
+        <label for="event">Tipo de evento</label>
+        <select id="event" name="event" required>
+          <option value="Evento empresarial">Evento empresarial</option>
+          <option value="Despedida de fin de año">Despedida de fin de año</option>
+          <option value="Cumpleaños">Cumpleaños</option>
+          <option value="Bautizo">Bautizo</option>
+          <option value="Primera comunión">Primera comunión</option>
+          <option value="Matrimonio">Matrimonio</option>
+          <option value="15 años">15 años</option>
+          <option value="Grado">Grado</option>
+          <option value="Otro">Otro</option>
+        </select>
+
+        <label for="date">Fecha tentativo</label>
+        <input id="date" name="date" type="date">
+
+        <label for="guests">Número de invitados</label>
+        <input id="guests" name="guests" type="number" min="10" value="40" required>
+
+        <label for="price">Precio del plato (COP)</label>
+        <input id="price" name="price" type="number" min="25000" max="150000" step="1000" value="40000" required>
+        <input id="price-range" type="range" min="25000" max="120000" step="1000" value="40000" aria-label="Ajustar precio del plato">
+        <p class="price-display" id="price-label">$40.000</p>
+
+        <label>Adicionales</label>
+        <label><input type="checkbox" name="extras" value="Menaje y meseros"> Menaje y meseros</label>
+        <label><input type="checkbox" name="extras" value="Montaje de mesas"> Montaje de mesas</label>
+        <label><input type="checkbox" name="extras" value="Barra de cócteles"> Barra de cócteles</label>
+        <label><input type="checkbox" name="extras" value="Decoración"> Decoración</label>
+
+        <label for="notes">Notas</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="Lugar, hora, alergias o cortes favoritos"></textarea>
+
+        <button class="btn btn-ember" type="submit">Enviar cotización por WhatsApp</button>
+      </form>
+
+      <aside class="panel plate">
+        <p class="eyebrow">Tu plato</p>
+        <h2 id="plate-name">Brasa Clásica</h2>
+        <div id="plate-box"></div>
+        <div class="total-box">
+          <p class="muted">Total estimado de alimentos</p>
+          <p class="price-display" id="total-label">$1.600.000</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+  <footer id="site-footer"></footer>
+  <script src="js/config.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/cotizador.js"></script>
+  <script src="js/sw-register.js"></script>
+</body>
+</html>
