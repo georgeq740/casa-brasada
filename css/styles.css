@@ -12,7 +12,7 @@
   --shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
   --radius: 22px;
   --max: 1180px;
-  --header-h: 82px;
+  --header-h: 96px;
 }
 
 * { box-sizing: border-box; }
@@ -67,9 +67,18 @@ h1, h2, h3, h4, .display {
   position: sticky;
   top: 0;
   z-index: 40;
-  backdrop-filter: blur(18px);
-  background: rgba(18, 13, 11, 0.78);
-  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(22px);
+  background:
+    linear-gradient(180deg, rgba(28, 18, 12, 0.96), rgba(14, 10, 8, 0.92));
+  border-bottom: 0;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.site-header::after {
+  content: "";
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--ember), var(--gold), var(--ember), transparent);
 }
 
 .header-inner {
@@ -83,29 +92,78 @@ h1, h2, h3, h4, .display {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-family: "Fraunces", serif;
-  font-size: 1.35rem;
+  gap: 12px;
+}
+
+.logo-badge {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #14100d;
+  box-shadow: 0 0 0 1px rgba(212, 160, 84, 0.45), 0 8px 18px rgba(0, 0, 0, 0.35);
 }
 
 .logo-mark {
-  width: 38px;
-  height: 38px;
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+}
+
+.logo-text small {
+  color: var(--gold-soft);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 600;
+  max-width: 24ch;
+  line-height: 1.25;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.logo-text strong {
+  font-family: "Fraunces", serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 8px;
 }
 
-.nav a {
+.nav a:not(.btn) {
   color: var(--muted);
   font-size: 0.95rem;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 999px;
+  position: relative;
 }
 
-.nav a:hover,
-.nav a.active { color: var(--cream); }
+.nav a:not(.btn):hover {
+  color: var(--cream);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav a.active:not(.btn) {
+  color: #1a1008;
+  background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+}
+
+.btn-wa {
+  margin-left: 8px;
+  box-shadow: 0 8px 22px rgba(212, 160, 84, 0.28);
+}
 
 .btn {
   display: inline-flex;
@@ -141,7 +199,6 @@ h1, h2, h3, h4, .display {
 
 .hero {
   position: relative;
-  min-height: calc(100vh - var(--header-h));
   display: grid;
   align-items: end;
   overflow: hidden;
@@ -151,18 +208,25 @@ h1, h2, h3, h4, .display {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(18,13,11,0.15) 0%, rgba(18,13,11,0.82) 72%, var(--bg) 100%),
-    url("https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=2000&q=80") center/cover;
+    linear-gradient(180deg, rgba(18,13,11,0.28) 0%, rgba(18,13,11,0.78) 68%, var(--bg) 100%),
+    url("../assets/photos/hero-asado.jpg") center 38% / cover;
 }
 
 .hero-content {
   position: relative;
-  padding: 80px 0 56px;
+  padding: 28px 0 8px;
+}
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
 }
 
 .hero h1 {
-  font-size: clamp(3rem, 8vw, 7rem);
-  max-width: 12ch;
+  font-size: clamp(2.6rem, 7vw, 5.6rem);
+  max-width: 14ch;
 }
 
 .hero p.lead {
@@ -175,13 +239,7 @@ h1, h2, h3, h4, .display {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin: 28px 0 46px;
-}
-
-.pillars {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  margin: 22px 0 16px;
 }
 
 .pillar {
@@ -202,7 +260,11 @@ h1, h2, h3, h4, .display {
 
 .pillar p { color: var(--muted); margin: 0 0 16px; }
 
-section { padding: 88px 0; }
+section { padding: 64px 0; }
+
+.section-follow {
+  padding-top: 12px;
+}
 
 .section-head {
   max-width: 720px;
@@ -543,6 +605,7 @@ label:has(input[type="checkbox"]) {
     align-items: flex-start;
   }
   .nav.open { display: flex; }
+  .btn-wa { margin-left: 0; width: 100%; }
   .pillars, .grid-2, .grid-3, .grid-4, .media-split, .form-grid, .footer-grid, .quote-inner, .gallery {
     grid-template-columns: 1fr;
     grid-template-rows: none;

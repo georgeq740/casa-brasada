@@ -19,8 +19,11 @@
     header.innerHTML = `
       <div class="wrap header-inner">
         <a class="logo" href="index.html" aria-label="${cfg.brand}">
-          <img class="logo-mark" src="assets/icons/favicon.svg" alt="">
-          <span>${cfg.brand}</span>
+          <span class="logo-badge"><img class="logo-mark" src="assets/icons/logo.png" alt=""></span>
+          <span class="logo-text">
+            <strong>${cfg.brand}</strong>
+            <small>${cfg.tagline}</small>
+          </span>
         </a>
         <button class="nav-toggle" type="button" aria-label="Abrir menú">Menú</button>
         <nav class="nav" id="main-nav">
@@ -30,9 +33,12 @@
                 `<a href="${href}" class="${page === id ? "active" : ""}">${label}</a>`
             )
             .join("")}
-          <a class="btn btn-gold" href="${waLink(
+          <a class="btn btn-gold btn-wa" href="${waLink(
             `Hola ${cfg.brand}, quiero información de un evento con asado.`
-          )}" target="_blank" rel="noopener">WhatsApp ${cfg.phoneDisplay}</a>
+          )}" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 2.1 17.2L1 23l5.9-1.1A11 11 0 0 0 20.5 3.5zm-8.5 17a9 9 0 0 1-4.6-1.3l-.3-.2-3.5.7.7-3.4-.2-.3A9 9 0 1 1 12 20.5z"/></svg>
+            WhatsApp ${cfg.phoneDisplay}
+          </a>
         </nav>
       </div>
     `;
@@ -44,7 +50,7 @@
     footer.innerHTML = `
       <div class="wrap footer-grid">
         <div>
-          <div class="logo"><img class="logo-mark" src="assets/icons/favicon.svg" alt=""><span>${cfg.brand}</span></div>
+          <div class="logo"><img class="logo-mark" src="assets/icons/logo.png" alt=""><span>${cfg.brand}</span></div>
           <p class="muted">${cfg.tagline}. Asados en vivo para matrimonios, bautizos, cumpleaños y eventos empresariales en ${cfg.city}.</p>
           <div class="socials">
             <a href="${cfg.social.instagram}" target="_blank" rel="noopener">Instagram</a>

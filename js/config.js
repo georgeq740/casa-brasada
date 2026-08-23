@@ -1,6 +1,6 @@
 window.CASA_BRASADA = {
   brand: "Casa Brasada",
-  tagline: "El fuego que celebra",
+  tagline: "Vive una experiencia diferente",
   city: "Bogotá y alrededores",
   phoneDisplay: "310 227 8456",
   whatsapp: "573102278456",

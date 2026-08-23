@@ -1,7 +1,7 @@
 (function () {
   const cfg = window.CASA_BRASADA;
   const MENU = [
-    { id: "res", name: "Carne de res", unit: "g", step: 50, min: 0, max: 500, price: 100 },
+    { id: "res", name: "Carne de res", unit: "g", step: 50, min: 150, max: 500, price: 100 },
     { id: "cerdo", name: "Cerdo ahumado", unit: "g", step: 50, min: 0, max: 400, price: 80 },
     { id: "pollo", name: "Pollo a la brasa", unit: "g", step: 50, min: 0, max: 400, price: 70 },
     { id: "chorizo", name: "Chorizo", unit: "und", step: 1, min: 0, max: 4, price: 6000 },
@@ -35,11 +35,11 @@
   }
 
   function beefGrams(price) {
-    return 250 + Math.round((price - 40000) / 100);
+    return Math.max(150, 250 + Math.round((price - 40000) / 100));
   }
 
   function composePlate(price) {
-    const p = Math.max(25000, Math.min(150000, Number(price) || 25000));
+    const p = Math.max(30000, Math.min(150000, Number(price) || 30000));
     const items = [];
     let name = "Brasa Esencial";
 
@@ -139,7 +139,7 @@
   const modeBuild = document.getElementById("mode-build");
 
   function syncPrice(source) {
-    const next = Math.max(25000, Math.min(150000, Number(source.value) || 25000));
+    const next = Math.max(30000, Math.min(150000, Number(source.value) || 30000));
     priceInput.value = next;
     if (priceRange) priceRange.value = Math.min(120000, next);
     return next;
