@@ -1,7 +1,10 @@
 (function () {
   const cfg = window.CASA_BRASADA;
+  if (!cfg) return;
+
+  const rules = cfg.commercialRules;
   const MENU = [
-    { id: "res", name: "Carne de res", unit: "g", step: 50, min: 150, max: 500, price: 100 },
+    { id: "res", name: "Carne de res", unit: "g", step: 50, min: rules.beefMinGrams, max: 500, price: 100 },
     { id: "cerdo", name: "Cerdo ahumado", unit: "g", step: 50, min: 0, max: 400, price: 80 },
     { id: "pollo", name: "Pollo a la brasa", unit: "g", step: 50, min: 0, max: 400, price: 70 },
     { id: "chorizo", name: "Chorizo", unit: "und", step: 1, min: 0, max: 4, price: 6000 },
@@ -15,14 +18,15 @@
     { id: "postre", name: "Postre", unit: "und", step: 1, min: 0, max: 3, price: 6000 },
   ];
 
-  const INCLUDED = [
-    { qty: "1", name: "parrillero" },
-    { qty: "1", name: "mesero" },
-    { qty: "Incluye", name: "mesas y sillas" },
+  const PENDING_SERVICES = [
+    { status: "por confirmar", name: "Parrillero" },
+    { status: "según invitados", name: "Meseros" },
+    { status: "por confirmar", name: "Mesas y sillas" },
+    { status: "por confirmar", name: "Montaje" },
+    { status: "según ubicación", name: "Transporte" },
   ];
-  const qty = Object.fromEntries(MENU.map((item) => [item.id, item.id === "res" ? 150 : 0]));
-  const WAITER_PRICE = 80000;
-  const WAITER_MAX = 10;
+
+  const qty = Object.fromEntries(MENU.map((item) => [item.id, item.id === "res" ? rules.beefMinGrams : 0]));
   let extraWaiters = 0;
   let mode = "price";
 
@@ -35,11 +39,11 @@
   }
 
   function beefGrams(price) {
-    return Math.max(150, 250 + Math.round((price - 40000) / 100));
+    return Math.max(rules.beefMinGrams, 250 + Math.round((price - 40000) / 100));
   }
 
   function composePlate(price) {
-    const p = Math.max(30000, Math.min(150000, Number(price) || 30000));
+    const p = Math.max(rules.plateMin, Math.min(rules.plateMax, Number(price) || rules.plateMin));
     const items = [];
     let name = "Brasa Esencial";
 
@@ -73,7 +77,7 @@
       name: papas === 1 ? "papa salada" : "papas saladas",
     });
 
-    if (p >= 30000) items.push({ qty: "1", name: "yuca" });
+    if (p >= rules.plateMin) items.push({ qty: "1", name: "yuca" });
     items.push({
       qty: "1",
       name: p >= 35000 ? "arepa boyacense" : "arepa",
@@ -94,7 +98,7 @@
     else if (p >= 60000) name = "Brasa Mixta";
     else if (p >= 50000) name = "Brasa Mayor";
     else if (p >= 40000) name = "Brasa Clásica";
-    else if (p >= 30000) name = "Brasa Campestre";
+    else if (p >= rules.plateMin) name = "Brasa Campestre";
 
     return { name, items, unitPrice: p };
   }
@@ -118,14 +122,6 @@
   if (!form) return;
 
   const dateInput = form.querySelector("#date");
-  if (dateInput) {
-    const today = new Date();
-    const iso = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 10);
-    dateInput.min = iso;
-  }
-
   const priceInput = form.querySelector("#price");
   const priceRange = form.querySelector("#price-range");
   const guestsInput = form.querySelector("#guests");
@@ -138,21 +134,55 @@
   const modePrice = document.getElementById("mode-price");
   const modeBuild = document.getElementById("mode-build");
 
+  function applyCommercialRules() {
+    if (guestsInput) guestsInput.min = String(rules.minimumGuests);
+    if (priceInput) {
+      priceInput.min = String(rules.plateMin);
+      priceInput.max = String(rules.plateMax);
+    }
+    if (priceRange) {
+      priceRange.min = String(rules.plateMin);
+      priceRange.max = String(rules.plateSliderMax);
+    }
+    const waiterHelp = document.getElementById("waiter-help");
+    if (waiterHelp) {
+      waiterHelp.textContent = `Puedes agregar meseros adicionales. Cada uno vale ${money(rules.extraWaiterPrice)}. Máximo ${rules.extraWaiterMax}. El personal de servicio se confirma según el evento.`;
+    }
+    const waiterRate = document.getElementById("waiter-rate");
+    if (waiterRate) waiterRate.textContent = `${money(rules.extraWaiterPrice)} c/u`;
+    const drinkText = document.getElementById("drink-bar-text");
+    if (drinkText) {
+      drinkText.textContent = `Barra de bebidas (${money(rules.drinkBarPerGuest)} por persona)`;
+    }
+    const buildHelp = document.getElementById("build-help");
+    if (buildHelp) {
+      buildHelp.textContent = `El plato personalizado parte de una base mínima de ${rules.beefMinGrams} g de carne de res. Puedes agregar otras proteínas, acompañamientos y bebidas.`;
+    }
+  }
+
+  if (dateInput) {
+    const today = new Date();
+    const iso = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 10);
+    dateInput.min = iso;
+  }
+
   function syncPrice(source) {
-    const next = Math.max(30000, Math.min(150000, Number(source.value) || 30000));
+    const next = Math.max(rules.plateMin, Math.min(rules.plateMax, Number(source.value) || rules.plateMin));
     priceInput.value = next;
-    if (priceRange) priceRange.value = Math.min(120000, next);
+    if (priceRange) priceRange.value = Math.min(rules.plateSliderMax, next);
     return next;
   }
 
   function waiterCost() {
-    return extraWaiters * WAITER_PRICE;
+    return extraWaiters * rules.extraWaiterPrice;
   }
 
   function drinkBarCost(guests) {
     const bar = form.querySelector("#drink-bar");
     if (!bar?.checked) return 0;
-    return guests * Number(bar.dataset.perGuest || 0);
+    return guests * rules.drinkBarPerGuest;
   }
 
   function eventTotal(plate, guests) {
@@ -179,7 +209,7 @@
     totalLabel.textContent = money(food + waiters + drinks);
     if (unitCaption) {
       const foodLine =
-        plate.unitPrice > 0
+        Number.isFinite(plate.unitPrice) && plate.unitPrice > 0
           ? `${money(plate.unitPrice)} por persona · ${guests} invitados`
           : "Agrega ingredientes para ver el costo";
       const waiterLine = extraWaiters
@@ -205,10 +235,10 @@
             .join("")
         : `<p class="muted">Todavía no hay ingredientes en el plato.</p>`) +
       `<div class="included-box">
-        <p class="eyebrow">También incluye</p>
-        ${INCLUDED.map(
+        <p class="eyebrow">Servicios por confirmar</p>
+        ${PENDING_SERVICES.map(
           (item) =>
-            `<div class="plate-item"><strong>${item.qty}</strong><span>${item.name}</span></div>`
+            `<div class="plate-item"><strong>${item.status}</strong><span>${item.name}</span></div>`
         ).join("")}
         ${waiterRows}
         ${drinkRow}
@@ -229,14 +259,16 @@
       const amount = qty[item.id];
       const shown = item.unit === "g" ? `${amount} g` : amount;
       const rate = item.unit === "g" ? `${money(item.price)} / g` : `${money(item.price)} c/u`;
+      const atMin = amount <= item.min;
+      const badge = item.id === "res" ? '<span class="hint-badge">Base mínima</span>' : "";
       return `
         <div class="builder-row">
           <div>
-            <strong>${item.name}</strong>
+            <strong>${item.name}${badge}</strong>
             <small>${rate}</small>
           </div>
           <div class="stepper">
-            <button type="button" data-id="${item.id}" data-dir="-1" aria-label="Quitar ${item.name}">−</button>
+            <button type="button" data-id="${item.id}" data-dir="-1" aria-label="Quitar ${item.name}" ${atMin ? "disabled" : ""}>−</button>
             <span>${shown}</span>
             <button type="button" data-id="${item.id}" data-dir="1" aria-label="Agregar ${item.name}">+</button>
           </div>
@@ -268,16 +300,13 @@
     eventSelect.value = cfg.eventPresets[preset];
   }
 
-  let quoteStarted = false;
   form.addEventListener("focusin", () => {
-    if (quoteStarted) return;
-    quoteStarted = true;
     cfg.track("quote_start", { mode });
   }, { once: true });
 
   builderList.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-id]");
-    if (!button) return;
+    if (!button || button.disabled) return;
     const item = MENU.find((entry) => entry.id === button.dataset.id);
     const dir = Number(button.dataset.dir);
     const next = qty[item.id] + dir * item.step;
@@ -292,19 +321,27 @@
     renderPlate();
   });
   document.getElementById("waiter-plus")?.addEventListener("click", () => {
-    extraWaiters = Math.min(WAITER_MAX, extraWaiters + 1);
+    extraWaiters = Math.min(rules.extraWaiterMax, extraWaiters + 1);
     renderWaiters();
     renderPlate();
   });
 
   form.addEventListener("input", render);
+  applyCommercialRules();
   renderBuilder();
   renderWaiters();
   render();
 
   function clearFieldErrors() {
-    form.querySelectorAll(".field-error").forEach((el) => el.remove());
-    form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+    form.querySelectorAll(".field-error").forEach((element) => element.remove());
+
+    form.querySelectorAll("[aria-invalid]").forEach((element) => {
+      element.removeAttribute("aria-invalid");
+    });
+
+    form.querySelectorAll("[aria-describedby]").forEach((element) => {
+      element.removeAttribute("aria-describedby");
+    });
   }
 
   function setFieldError(input, message) {
@@ -342,24 +379,34 @@
       firstError.push(dateInput);
     }
     const guestCount = Number(guestsField?.value);
-    if (!guestCount || guestCount < 10) {
-      setFieldError(guestsField, "Indica al menos 10 invitados.");
+    if (!guestCount || guestCount < rules.minimumGuests) {
+      setFieldError(guestsField, `Indica al menos ${rules.minimumGuests} invitados.`);
       firstError.push(guestsField);
     }
     if (mode === "price") {
       const price = Number(priceInput.value);
-      if (!price || price < 30000) {
-        setFieldError(priceInput, "Elige un valor por persona de al menos $30.000.");
+      if (!price || price < rules.plateMin) {
+        setFieldError(priceInput, `Elige un valor por persona de al menos ${money(rules.plateMin)}.`);
         firstError.push(priceInput);
       }
-    } else if (plate.unitPrice <= 0) {
-      const note = document.createElement("p");
-      note.className = "field-error";
-      note.id = "build-error";
-      note.setAttribute("role", "alert");
-      note.textContent = "Agrega al menos un ingrediente para armar el menú.";
-      modeBuild?.prepend(note);
-      firstError.push(builderList);
+    } else {
+      if (qty.res < rules.beefMinGrams) {
+        const note = document.createElement("p");
+        note.className = "field-error";
+        note.id = "build-error";
+        note.setAttribute("role", "alert");
+        note.textContent = `El plato debe incluir al menos ${rules.beefMinGrams} g de carne de res.`;
+        modeBuild?.prepend(note);
+        firstError.push(builderList);
+      } else if (!Number.isFinite(plate.unitPrice) || plate.unitPrice <= 0) {
+        const note = document.createElement("p");
+        note.className = "field-error";
+        note.id = "build-error";
+        note.setAttribute("role", "alert");
+        note.textContent = "El menú no tiene un valor válido. Revisa los ingredientes seleccionados.";
+        modeBuild?.prepend(note);
+        firstError.push(builderList);
+      }
     }
 
     if (firstError.length) {
@@ -369,20 +416,14 @@
     return true;
   }
 
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const data = new FormData(form);
-    const guests = Number(data.get("guests"));
-    const plate = currentPlate();
-    if (!validateQuote(plate)) return;
-
+  function buildWhatsAppMessage(data, plate, guests) {
     const extras = [...form.querySelectorAll("input[name='extras']:checked")].map(
       (el) => el.value
     );
     const otherExtras = extras.filter((item) => item !== "Barra de bebidas");
     const estimate = money(eventTotal(plate, guests));
 
-    const lines = [
+    return [
       `Hola ${cfg.brand}, quiero solicitar una propuesta para mi evento.`,
       "",
       "Datos del evento",
@@ -405,7 +446,7 @@
       ),
       "",
       "Servicios adicionales",
-      "Incluido en la estimación: parrillero, 1 mesero, mesas y sillas.",
+      "Servicios solicitados por confirmar: parrillero, personal de servicio, mesas, sillas, montaje y transporte según las condiciones del evento.",
       extraWaiters
         ? `Meseros adicionales: ${extraWaiters} (${money(waiterCost())})`
         : "Meseros adicionales: no",
@@ -417,13 +458,24 @@
       `Inversión estimada: ${estimate}`,
       "",
       "Advertencia: este valor es una estimación inicial, pendiente de confirmación según fecha, ubicación, número de invitados, transporte, montaje y servicios seleccionados.",
-    ].filter((line) => line !== null);
+    ]
+      .filter((line) => line !== null)
+      .join("\n");
+  }
 
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const guests = Number(data.get("guests"));
+    const plate = currentPlate();
+    if (!validateQuote(plate)) return;
+
+    const message = buildWhatsAppMessage(data, plate, guests);
     cfg.track("quote_completed", { mode, guests, estimate: plate.unitPrice });
     cfg.track("quote_whatsapp_click", { mode });
 
     window.open(
-      `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(lines.join("\n"))}`,
+      `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(message)}`,
       "_blank",
       "noopener"
     );
