@@ -30,6 +30,7 @@
   const qty = Object.fromEntries(MENU.map((item) => [item.id, item.id === "res" ? rules.beefMinGrams : 0]));
   let extraWaiters = 0;
   let mode = "price";
+  let builderMinimumReached = false;
 
   function money(n) {
     return new Intl.NumberFormat("es-CO", {
@@ -216,25 +217,56 @@
     return composePlate(Number(priceInput.value));
   }
 
+  function builderMeetsMinimum(plate) {
+    return Number.isFinite(plate.unitPrice) && plate.unitPrice >= rules.builderMinimumPrice;
+  }
+
+  function updateSubmitState(plate) {
+    const submit = form.querySelector("#quote-submit");
+    if (!submit) return;
+    const blocked = mode === "build" && !builderMeetsMinimum(plate || builtPlate());
+    submit.disabled = blocked;
+    submit.setAttribute("aria-disabled", String(blocked));
+    submit.classList.toggle("is-disabled", blocked);
+    submit.textContent = blocked
+      ? "Completa el mínimo para continuar"
+      : "Solicitar propuesta por WhatsApp";
+  }
+
   function renderPlate() {
     const guests = Math.max(1, Number(guestsInput.value) || 1);
     const plate = currentPlate();
     const food = plate.unitPrice * guests;
     const waiters = waiterCost();
     const drinks = drinkBarCost(guests);
+    const incomplete = mode === "build" && !builderMeetsMinimum(plate);
     if (mode === "build") updateBuilderGap();
+    updateSubmitState(plate);
     plateName.textContent = plate.name;
-    totalLabel.textContent = money(food + waiters + drinks);
-    if (unitCaption) {
-      const foodLine =
-        Number.isFinite(plate.unitPrice) && plate.unitPrice > 0
-          ? `${money(plate.unitPrice)} por persona · ${guests} invitados`
-          : "Agrega ingredientes para ver el costo";
-      const waiterLine = extraWaiters
-        ? ` · ${extraWaiters} mesero${extraWaiters > 1 ? "s" : ""} adicional${extraWaiters > 1 ? "es" : ""} (${money(waiters)})`
-        : "";
-      const drinkLine = drinks ? ` · barra de bebidas (${money(drinks)})` : "";
-      unitCaption.textContent = foodLine + waiterLine + drinkLine;
+    const totalBox = document.querySelector(".total-box");
+    const totalCaption = document.getElementById("total-caption");
+    totalBox?.classList.toggle("is-incomplete", incomplete);
+    if (incomplete) {
+      const missing = rules.builderMinimumPrice - plate.unitPrice;
+      if (totalCaption) totalCaption.textContent = "Aún no es una propuesta válida";
+      totalLabel.textContent = money(plate.unitPrice);
+      if (unitCaption) {
+        unitCaption.textContent = `Valor actual del plato: ${money(plate.unitPrice)}. Te faltan ${money(missing)} para el mínimo de ${money(rules.builderMinimumPrice)} por persona.`;
+      }
+    } else {
+      if (totalCaption) totalCaption.textContent = "Inversión estimada";
+      totalLabel.textContent = money(food + waiters + drinks);
+      if (unitCaption) {
+        const foodLine =
+          Number.isFinite(plate.unitPrice) && plate.unitPrice > 0
+            ? `${money(plate.unitPrice)} por persona · ${guests} invitados`
+            : "Agrega ingredientes para ver el costo";
+        const waiterLine = extraWaiters
+          ? ` · ${extraWaiters} mesero${extraWaiters > 1 ? "s" : ""} adicional${extraWaiters > 1 ? "es" : ""} (${money(waiters)})`
+          : "";
+        const drinkLine = drinks ? ` · barra de bebidas (${money(drinks)})` : "";
+        unitCaption.textContent = foodLine + waiterLine + drinkLine;
+      }
     }
     const waiterRows = extraWaiters
       ? `<div class="plate-item"><strong>${extraWaiters}</strong><span>mesero${extraWaiters > 1 ? "s" : ""} adicional${extraWaiters > 1 ? "es" : ""}</span><em>${money(waiters)}</em></div>`
@@ -274,13 +306,16 @@
 
   function updateBuilderGap() {
     const gap = document.getElementById("builder-gap");
-    if (!gap) return;
     const current = builtPlate().unitPrice;
     const missing = rules.builderMinimumPrice - current;
-    if (missing > 0) {
-      gap.textContent = `Te faltan ${money(missing)} para alcanzar el mínimo.`;
-    } else {
-      gap.textContent = "Valor mínimo alcanzado.";
+    if (gap) {
+      gap.textContent = missing > 0
+        ? `Te faltan ${money(missing)} para alcanzar el mínimo de ${money(rules.builderMinimumPrice)}.`
+        : "Valor mínimo alcanzado.";
+    }
+    if (missing <= 0 && !builderMinimumReached) {
+      builderMinimumReached = true;
+      cfg.track("builder_minimum_reached", { unitPrice: current });
     }
   }
 
@@ -354,6 +389,8 @@
     if (corporateFields) corporateFields.hidden = value !== "empresa";
     if (announce) cfg.track("audience_selected", { audience: value });
   }
+  if (params.get("modo") === "build") setMode("build");
+
   const origen = params.get("origen") || cfg.getAttribution().origen;
   if (origen === "empresas") {
     setAudience("empresa");
@@ -470,6 +507,7 @@
     }
 
     if (firstError.length) {
+      cfg.track("form_validation_error", { mode, fields: firstError.length });
       firstError[0].focus?.();
       return false;
     }
@@ -533,6 +571,11 @@
     const data = new FormData(form);
     const guests = Number(data.get("guests"));
     const plate = currentPlate();
+    if (mode === "build" && !builderMeetsMinimum(plate)) {
+      updateSubmitState(plate);
+      validateQuote(plate);
+      return;
+    }
     if (!validateQuote(plate)) return;
 
     const message = buildWhatsAppMessage(data, plate, guests);

@@ -61,8 +61,17 @@ window.CASA_BRASADA = {
     "linkedin",
   ],
   caseStudies: [],
+  // Completar solo con testimonios reales. Campos: quote, name, eventType, guests, location, service, photo.
   testimonials: [],
   clientLogos: [],
+  analyticsAliases: {
+    quote_start: "quote_started",
+    quote_mode_change: "quote_mode_selected",
+    wa_cta_click: "whatsapp_click",
+    wa_header_click: "whatsapp_click",
+    wa_float_click: "whatsapp_click",
+    quote_whatsapp_click: "whatsapp_click",
+  },
   attributionKey: "cb_attribution",
   hasValue(value) {
     if (value === null || value === undefined || value === "") return false;
@@ -130,15 +139,16 @@ window.CASA_BRASADA = {
     return `https://wa.me/${this.whatsapp}?text=${encodeURIComponent(text)}`;
   },
   track(eventName, params) {
+    const name = this.analyticsAliases[eventName] || eventName;
     const detail = Object.assign(
-      { event: eventName },
+      { event: name },
       this.attributionParams(),
       params || {}
     );
 
     try {
       if (typeof window.gtag === "function") {
-        window.gtag("event", eventName, Object.assign({}, this.attributionParams(), params || {}));
+        window.gtag("event", name, Object.assign({}, this.attributionParams(), params || {}));
       } else if (Array.isArray(window.dataLayer)) {
         window.dataLayer.push(detail);
       }
