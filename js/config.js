@@ -1,6 +1,6 @@
 window.CASA_BRASADA = {
   brand: "Casa Brasada",
-  tagline: "Asados en vivo con esencia boyacense",
+  tagline: "Asados en vivo para celebrar distinto",
   city: "Bogotá y alrededores",
   phoneDisplay: "310 227 8456",
   phoneTel: "+573102278456",

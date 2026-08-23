@@ -25,7 +25,7 @@ En `cotizar.html` el visitante elige el valor del plato. Con **$40.000** el men�
 - 250 g de carne de res
 - 2 papas saladas
 - 1 yuca
-- 1 arepa boyacense
+- 1 arepa asada
 - 1 cerveza o 2 gaseosas
 
 La cotización se envía por WhatsApp.

@@ -11,7 +11,7 @@
     { id: "chorizo", name: "Chorizo", unit: "und", step: 1, min: 0, max: 4, price: 6000 },
     { id: "papa", name: "Papa salada", unit: "und", step: 1, min: 0, max: 6, price: 2000 },
     { id: "yuca", name: "Yuca", unit: "und", step: 1, min: 0, max: 4, price: 3000 },
-    { id: "arepa", name: "Arepa boyacense", unit: "und", step: 1, min: 0, max: 4, price: 3500 },
+    { id: "arepa", name: "Arepa asada", unit: "und", step: 1, min: 0, max: 4, price: 3500 },
     { id: "maduro", name: "Maduro asado", unit: "und", step: 1, min: 0, max: 4, price: 3500 },
     { id: "gaseosa", name: "Gaseosa", unit: "und", step: 1, min: 0, max: 6, price: 2500 },
     { id: "cerveza", name: "Cerveza", unit: "und", step: 1, min: 0, max: 6, price: 4500 },
@@ -81,7 +81,7 @@
     if (p >= rules.plateMin) items.push({ qty: "1", name: "yuca" });
     items.push({
       qty: "1",
-      name: p >= 35000 ? "arepa boyacense" : "arepa",
+      name: "arepa asada",
     });
 
     if (p >= 50000) items.push({ qty: "1", name: "ensalada criolla" });

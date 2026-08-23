@@ -31,7 +31,7 @@
       "@type": ["Caterer", "LocalBusiness"],
       name: cfg.brand,
       description:
-        "Casa de banquetes especializada en asados en vivo con esencia boyacense para eventos sociales y empresariales en Bogotá y alrededores.",
+        "Casa de banquetes especializada en asados en vivo para eventos sociales y empresariales en Bogotá y alrededores.",
       url: `${cfg.siteUrl}/`,
       telephone: cfg.phoneTel,
       areaServed: {
@@ -157,7 +157,7 @@
       <div class="wrap footer-grid">
         <div>
           <div class="logo"><img class="logo-mark" src="assets/icons/logo.png" alt="Casa Brasada" width="58" height="58"><span>${cfg.brand}</span></div>
-          <p class="muted">${cfg.tagline}. Llevamos la parrilla, el personal y el montaje a matrimonios, cumpleaños y eventos empresariales en ${cfg.city}.</p>
+          <p class="muted">${cfg.tagline}. Llevamos la parrilla y coordinamos el menú y los servicios que tu evento necesita en ${cfg.city}.</p>
           <div class="socials">
             <a class="js-track-social" data-network="instagram" href="${cfg.social.instagram}" target="_blank" rel="noopener">Instagram</a>
             <a class="js-track-social" data-network="facebook" href="${cfg.social.facebook}" target="_blank" rel="noopener">Facebook</a>
