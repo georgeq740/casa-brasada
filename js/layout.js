@@ -4,9 +4,12 @@
 
   const page = document.body.dataset.page || "inicio";
 
+  cfg.captureAttribution();
+
   const nav = [
     ["inicio", "index.html", "Inicio"],
     ["experiencia", "experiencia.html", "Experiencia"],
+    ["empresas", "empresas.html", "Empresas"],
     ["eventos", "eventos.html", "Eventos"],
     ["cotizar", "cotizar.html", "Cotizar"],
     ["contacto", "contacto.html", "Contacto"],
@@ -66,7 +69,7 @@
       ],
       [
         "¿El servicio incluye mesas, sillas y meseros?",
-        "Depende del plan seleccionado. El cotizador indica los servicios incluidos y permite agregar opciones adicionales.",
+        "Depende de la propuesta. El cotizador muestra servicios disponibles, seleccionados y pendientes de confirmación.",
       ],
       [
         "¿La cotización de la página es definitiva?",
@@ -108,7 +111,8 @@
           <h2 id="final-cta-title">Cuéntanos cuándo, dónde y con cuántos invitados.</h2>
           <p class="muted">Nosotros diseñamos el menú, llevamos la parrilla y encendemos la experiencia.</p>
           <div class="hero-actions">
-            <a class="btn btn-ember" href="cotizar.html">Cotizar mi evento</a>
+            <a class="btn btn-ember" href="cotizar.html?origen=social">Cotizar mi celebración</a>
+            <a class="btn btn-gold" href="empresas.html">Solicitar propuesta empresarial</a>
             <a class="btn btn-ghost js-track-wa" data-track="wa_cta_click" href="${wa}" target="_blank" rel="noopener">Hablar por WhatsApp</a>
           </div>
         </div>
@@ -163,6 +167,7 @@
         <div>
           <h2>Contacto</h2>
           <p class="muted"><a class="js-track-phone" href="tel:${cfg.phoneTel}">${cfg.phoneDisplay}</a></p>
+          <p class="muted"><a href="empresas.html">Empresas</a> · <a href="eventos.html">Celebraciones</a></p>
         </div>
         <div>
           <h2>Cotiza tu evento</h2>
@@ -218,6 +223,18 @@
     const phone = event.target.closest(".js-track-phone");
     if (phone) cfg.track("phone_click");
   });
+
+  const trustRoot = document.getElementById("site-proof");
+  if (trustRoot) {
+    const studies = cfg.caseStudies || [];
+    const quotes = cfg.testimonials || [];
+    const logos = cfg.clientLogos || [];
+    if (!studies.length && !quotes.length && !logos.length) {
+      trustRoot.remove();
+    }
+  }
+
+  if (page === "empresas") cfg.track("corporate_page_view");
 
   injectSkipLink();
   injectSchema();

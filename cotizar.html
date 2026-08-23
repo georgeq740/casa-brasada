@@ -38,6 +38,25 @@
     <section>
       <div class="wrap form-grid">
         <form id="quote-form" class="panel" novalidate>
+          <fieldset>
+            <legend>¿Cotizas para una empresa o para una celebración personal?</legend>
+            <label><input type="radio" name="audience" value="empresa"> Empresa</label>
+            <label><input type="radio" name="audience" value="social"> Celebración personal</label>
+          </fieldset>
+
+          <div id="corporate-fields" hidden>
+            <label for="company">Nombre de la empresa</label>
+            <input id="company" name="company" autocomplete="organization">
+            <label for="role">Cargo o área</label>
+            <input id="role" name="role">
+            <label for="invoice">¿Necesita facturación?</label>
+            <select id="invoice" name="invoice">
+              <option value="Por confirmar">Por confirmar</option>
+              <option value="Sí">Sí</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+
           <label for="name">Tu nombre</label>
           <input id="name" name="name" required autocomplete="name" placeholder="Ana Pérez">
 
@@ -63,19 +82,23 @@
           <input id="guests" name="guests" type="number" value="40" required inputmode="numeric">
 
           <div class="mode-switch" role="tablist" aria-label="Cómo cotizar">
-            <button type="button" class="mode-btn active" data-mode="price" role="tab" aria-selected="true">Por precio del plato</button>
-            <button type="button" class="mode-btn" data-mode="build" role="tab" aria-selected="false">Armar mi plato</button>
+            <button type="button" class="mode-btn active" id="mode-tab-price" data-mode="price" role="tab" aria-selected="true" aria-controls="mode-price">Por precio del plato</button>
+            <button type="button" class="mode-btn" id="mode-tab-build" data-mode="build" role="tab" aria-selected="false" aria-controls="mode-build">Armar mi plato</button>
           </div>
 
-          <div id="mode-price">
+          <div id="mode-price" role="tabpanel" aria-labelledby="mode-tab-price">
             <label for="price">Precio del plato (COP)</label>
             <input id="price" name="price" type="number" step="1000" value="40000">
-            <input id="price-range" type="range" step="1000" value="40000" aria-label="Ajustar precio del plato">
+            <input id="price-range" type="range" step="1000" value="40000" aria-label="Ajustar precio del plato" aria-describedby="price-range-help price-range-status">
+            <p class="muted" id="price-range-help">Usa el control hasta $120.000 o escribe manualmente un valor de hasta $150.000.</p>
+            <p class="muted" id="price-range-status" hidden></p>
             <p class="price-display" id="price-label">$40.000</p>
           </div>
 
-          <div id="mode-build" hidden>
+          <div id="mode-build" role="tabpanel" aria-labelledby="mode-tab-build" hidden>
             <p class="muted" id="build-help">El plato personalizado parte de una base mínima de 150 g de carne de res. Puedes agregar otras proteínas, acompañamientos y bebidas.</p>
+            <p class="muted" id="builder-min-note"></p>
+            <p id="builder-gap" aria-live="polite"></p>
             <div id="builder-list"></div>
           </div>
 
@@ -125,8 +148,9 @@
   </main>
   <footer id="site-footer"></footer>
   <script src="js/config.js"></script>
+  <script src="js/forms.js"></script>
   <script src="js/layout.js"></script>
-  <script src="js/cotizador.js?v=13"></script>
+  <script src="js/cotizador.js?v=14"></script>
   <script src="js/sw-register.js"></script>
 </body>
 </html>

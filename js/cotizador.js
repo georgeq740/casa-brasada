@@ -1,6 +1,7 @@
 (function () {
   const cfg = window.CASA_BRASADA;
-  if (!cfg) return;
+  const forms = cfg?.forms;
+  if (!cfg || !forms) return;
 
   const rules = cfg.commercialRules;
   const MENU = [
@@ -158,6 +159,14 @@
     if (buildHelp) {
       buildHelp.textContent = `El plato personalizado parte de una base mínima de ${rules.beefMinGrams} g de carne de res. Puedes agregar otras proteínas, acompañamientos y bebidas.`;
     }
+    const minNote = document.getElementById("builder-min-note");
+    if (minNote) {
+      minNote.textContent = `El plato personalizado debe alcanzar un valor mínimo de ${money(rules.builderMinimumPrice)} por persona.`;
+    }
+    const rangeHelp = document.getElementById("price-range-help");
+    if (rangeHelp) {
+      rangeHelp.textContent = `Usa el control hasta ${money(rules.plateSliderMax)} o escribe manualmente un valor de hasta ${money(rules.plateMax)}.`;
+    }
   }
 
   if (dateInput) {
@@ -172,6 +181,14 @@
     const next = Math.max(rules.plateMin, Math.min(rules.plateMax, Number(source.value) || rules.plateMin));
     priceInput.value = next;
     if (priceRange) priceRange.value = Math.min(rules.plateSliderMax, next);
+    const status = document.getElementById("price-range-status");
+    if (status) {
+      const above = next > rules.plateSliderMax;
+      status.hidden = !above;
+      status.textContent = above
+        ? `El valor escrito es ${money(next)}, superior al rango visual del control (${money(rules.plateSliderMax)}).`
+        : "";
+    }
     return next;
   }
 
@@ -205,6 +222,7 @@
     const food = plate.unitPrice * guests;
     const waiters = waiterCost();
     const drinks = drinkBarCost(guests);
+    if (mode === "build") updateBuilderGap();
     plateName.textContent = plate.name;
     totalLabel.textContent = money(food + waiters + drinks);
     if (unitCaption) {
@@ -254,7 +272,20 @@
     renderPlate();
   }
 
+  function updateBuilderGap() {
+    const gap = document.getElementById("builder-gap");
+    if (!gap) return;
+    const current = builtPlate().unitPrice;
+    const missing = rules.builderMinimumPrice - current;
+    if (missing > 0) {
+      gap.textContent = `Te faltan ${money(missing)} para alcanzar el mínimo.`;
+    } else {
+      gap.textContent = "Valor mínimo alcanzado.";
+    }
+  }
+
   function renderBuilder() {
+    updateBuilderGap();
     builderList.innerHTML = MENU.map((item) => {
       const amount = qty[item.id];
       const shown = item.unit === "g" ? `${amount} g` : amount;
@@ -286,19 +317,53 @@
     modePrice.hidden = mode !== "price";
     modeBuild.hidden = mode !== "build";
     priceInput.required = mode === "price";
+    form.querySelectorAll(".mode-btn").forEach((btn) => {
+      btn.tabIndex = btn.dataset.mode === mode ? 0 : -1;
+    });
     cfg.track("quote_mode_change", { mode });
     render();
+    if (mode === "build") updateBuilderGap();
   }
 
-  form.querySelectorAll(".mode-btn").forEach((btn) => {
+  const modeButtons = [...form.querySelectorAll(".mode-btn")];
+  modeButtons.forEach((btn) => {
     btn.addEventListener("click", () => setMode(btn.dataset.mode));
   });
+  form.querySelector(".mode-switch")?.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    const current = modeButtons.findIndex((btn) => btn.dataset.mode === mode);
+    const next = event.key === "ArrowRight"
+      ? (current + 1) % modeButtons.length
+      : (current - 1 + modeButtons.length) % modeButtons.length;
+    modeButtons[next].focus();
+    setMode(modeButtons[next].dataset.mode);
+  });
 
-  const preset = new URLSearchParams(window.location.search).get("evento");
+  const params = new URLSearchParams(window.location.search);
   const eventSelect = form.querySelector("#event");
+  const preset = params.get("evento");
   if (preset && cfg.eventPresets?.[preset] && eventSelect) {
     eventSelect.value = cfg.eventPresets[preset];
   }
+
+  const corporateFields = document.getElementById("corporate-fields");
+  function setAudience(value, announce) {
+    const radio = form.querySelector(`input[name="audience"][value="${value}"]`);
+    if (radio) radio.checked = true;
+    if (corporateFields) corporateFields.hidden = value !== "empresa";
+    if (announce) cfg.track("audience_selected", { audience: value });
+  }
+  const origen = params.get("origen") || cfg.getAttribution().origen;
+  if (origen === "empresas") {
+    setAudience("empresa");
+    if (!eventSelect.value) eventSelect.value = cfg.eventPresets.empresarial;
+  } else if (origen === "social") {
+    setAudience("social");
+  }
+  form.querySelectorAll("input[name='audience']").forEach((radio) => {
+    radio.addEventListener("change", () => setAudience(radio.value, true));
+  });
 
   form.addEventListener("focusin", () => {
     cfg.track("quote_start", { mode });
@@ -332,61 +397,56 @@
   renderWaiters();
   render();
 
-  function clearFieldErrors() {
-    form.querySelectorAll(".field-error").forEach((element) => element.remove());
-
-    form.querySelectorAll("[aria-invalid]").forEach((element) => {
-      element.removeAttribute("aria-invalid");
-    });
-
-    form.querySelectorAll("[aria-describedby]").forEach((element) => {
-      element.removeAttribute("aria-describedby");
-    });
-  }
-
-  function setFieldError(input, message) {
-    if (!input) return;
-    input.setAttribute("aria-invalid", "true");
-    const error = document.createElement("p");
-    error.className = "field-error";
-    error.id = `${input.id || "field"}-error`;
-    error.setAttribute("role", "alert");
-    error.textContent = message;
-    input.insertAdjacentElement("afterend", error);
-    input.setAttribute("aria-describedby", error.id);
-  }
-
   function validateQuote(plate) {
-    clearFieldErrors();
+    forms.clearFieldErrors(form);
     const name = form.querySelector("#name");
     const eventType = form.querySelector("#event");
     const guestsField = form.querySelector("#guests");
+    const audience = form.querySelector("input[name='audience']:checked");
     const firstError = [];
 
+    if (!audience) {
+      const firstAudience = form.querySelector("input[name='audience']");
+      forms.setFieldError(firstAudience, "Indica si cotizas para una empresa o una celebración personal.");
+      firstError.push(firstAudience);
+    }
+    if (audience?.value === "empresa") {
+      const company = form.querySelector("#company");
+      const role = form.querySelector("#role");
+      if (!company?.value.trim()) {
+        forms.setFieldError(company, "Indica el nombre de la empresa.");
+        firstError.push(company);
+      }
+      if (!role?.value.trim()) {
+        forms.setFieldError(role, "Indica tu cargo o área.");
+        firstError.push(role);
+      }
+    }
+
     if (!name?.value.trim()) {
-      setFieldError(name, "Escribe tu nombre para enviar la propuesta.");
+      forms.setFieldError(name, "Escribe tu nombre para enviar la propuesta.");
       firstError.push(name);
     }
     if (!eventType?.value) {
-      setFieldError(eventType, "Selecciona el tipo de evento.");
+      forms.setFieldError(eventType, "Selecciona el tipo de evento.");
       firstError.push(eventType);
     }
     if (!dateInput?.value) {
-      setFieldError(dateInput, "Indica una fecha tentativa.");
+      forms.setFieldError(dateInput, "Indica una fecha tentativa.");
       firstError.push(dateInput);
     } else if (dateInput.min && dateInput.value < dateInput.min) {
-      setFieldError(dateInput, "La fecha tentativa no puede ser anterior a hoy.");
+      forms.setFieldError(dateInput, "La fecha tentativa no puede ser anterior a hoy.");
       firstError.push(dateInput);
     }
     const guestCount = Number(guestsField?.value);
     if (!guestCount || guestCount < rules.minimumGuests) {
-      setFieldError(guestsField, `Indica al menos ${rules.minimumGuests} invitados.`);
+      forms.setFieldError(guestsField, `Indica al menos ${rules.minimumGuests} invitados.`);
       firstError.push(guestsField);
     }
     if (mode === "price") {
       const price = Number(priceInput.value);
       if (!price || price < rules.plateMin) {
-        setFieldError(priceInput, `Elige un valor por persona de al menos ${money(rules.plateMin)}.`);
+        forms.setFieldError(priceInput, `Elige un valor por persona de al menos ${money(rules.plateMin)}.`);
         firstError.push(priceInput);
       }
     } else {
@@ -398,12 +458,12 @@
         note.textContent = `El plato debe incluir al menos ${rules.beefMinGrams} g de carne de res.`;
         modeBuild?.prepend(note);
         firstError.push(builderList);
-      } else if (!Number.isFinite(plate.unitPrice) || plate.unitPrice <= 0) {
+      } else if (!Number.isFinite(plate.unitPrice) || plate.unitPrice < rules.builderMinimumPrice) {
         const note = document.createElement("p");
         note.className = "field-error";
         note.id = "build-error";
         note.setAttribute("role", "alert");
-        note.textContent = "El menú no tiene un valor válido. Revisa los ingredientes seleccionados.";
+        note.textContent = `El plato personalizado debe alcanzar un valor mínimo de ${money(rules.builderMinimumPrice)} por persona.`;
         modeBuild?.prepend(note);
         firstError.push(builderList);
       }
@@ -427,7 +487,11 @@
       `Hola ${cfg.brand}, quiero solicitar una propuesta para mi evento.`,
       "",
       "Datos del evento",
+      `Público: ${data.get("audience") === "empresa" ? "Empresa" : "Celebración personal"}`,
       `Nombre: ${String(data.get("name") || "").trim()}`,
+      data.get("audience") === "empresa" ? `Empresa: ${String(data.get("company") || "").trim()}` : null,
+      data.get("audience") === "empresa" ? `Cargo o área: ${String(data.get("role") || "").trim()}` : null,
+      data.get("audience") === "empresa" ? `Facturación: ${data.get("invoice")}` : null,
       `Tipo de evento: ${data.get("event")}`,
       `Fecha tentativa: ${data.get("date")}`,
       `Número de invitados: ${guests}`,
@@ -458,6 +522,7 @@
       `Inversión estimada: ${estimate}`,
       "",
       "Advertencia: este valor es una estimación inicial, pendiente de confirmación según fecha, ubicación, número de invitados, transporte, montaje y servicios seleccionados.",
+      cfg.attributionLine() || null,
     ]
       .filter((line) => line !== null)
       .join("\n");
