@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Contacto Casa Brasada | Asados en Bogotá</title>
-  <meta name="description" content="Habla con Casa Brasada por WhatsApp al 310 227 8456. Asados en vivo para eventos en Bogotá y alrededores.">
+  <title>Contacto Casa Brasada | Empresas y celebraciones en Bogotá</title>
+  <meta name="description" content="Contacta a Casa Brasada por WhatsApp o teléfono. Atención para empresas y celebraciones con asados en vivo en Bogotá.">
   <meta name="theme-color" content="#120d0b">
   <link rel="canonical" href="https://georgeq740.github.io/casa-brasada/contacto.html">
   <link rel="manifest" href="manifest.webmanifest">
@@ -13,12 +13,12 @@
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_CO">
   <meta property="og:title" content="Contacto | Casa Brasada">
-  <meta property="og:description" content="WhatsApp 310 227 8456. Cotiza asados para eventos en Bogotá.">
+  <meta property="og:description" content="WhatsApp 310 227 8456. Atención para empresas y celebraciones en Bogotá.">
   <meta property="og:image" content="https://georgeq740.github.io/casa-brasada/assets/social/og-image.jpg">
   <meta property="og:url" content="https://georgeq740.github.io/casa-brasada/contacto.html">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Contacto | Casa Brasada">
-  <meta name="twitter:description" content="Escríbenos por WhatsApp para cotizar tu evento.">
+  <meta name="twitter:description" content="Escríbenos para cotizar un asado empresarial o una celebración.">
   <meta name="twitter:image" content="https://georgeq740.github.io/casa-brasada/assets/social/og-image.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,15 +32,23 @@
       <div class="wrap">
         <p class="eyebrow">Hablemos</p>
         <h1>La brasa se reserva por WhatsApp.</h1>
-        <p class="muted">Cuéntanos el tipo de evento, la fecha, el lugar y cuántos invitados. Te armamos una propuesta de asado en vivo.</p>
+        <p class="muted">Cuéntanos si es un evento empresarial o una celebración personal. El teléfono y WhatsApp son los canales confirmados.</p>
       </div>
     </section>
     <section>
-      <div class="wrap">
+      <div class="wrap grid-2">
         <article class="panel">
-          <h2>WhatsApp</h2>
+          <h2>WhatsApp y teléfono</h2>
           <p class="price-display"><a class="js-track-phone" href="tel:+573102278456">310 227 8456</a></p>
           <p><a class="btn btn-ember js-track-wa" data-track="wa_cta_click" id="wa-contact" href="#" target="_blank" rel="noopener">Escribir ahora</a></p>
+          <div id="contact-facts"></div>
+        </article>
+        <article class="panel">
+          <h2>Elige el camino</h2>
+          <p class="muted"><strong>Empresas.</strong> Integraciones, fin de año, lanzamientos y encuentros con clientes.</p>
+          <p><a class="btn btn-gold" href="empresas.html#solicitud-empresarial">Solicitar propuesta empresarial</a></p>
+          <p class="muted"><strong>Celebraciones.</strong> Matrimonios, cumpleaños, bautizos y fiestas en casa o finca.</p>
+          <p><a class="btn btn-ember" href="cotizar.html?origen=social">Cotizar mi celebración</a></p>
         </article>
       </div>
     </section>
@@ -54,6 +62,22 @@
     const link = document.getElementById("wa-contact");
     if (link && cfg) {
       link.href = cfg.waUrl("Hola Casa Brasada, quiero información de un evento.");
+    }
+    const facts = document.getElementById("contact-facts");
+    if (facts && cfg) {
+      const rows = [];
+      if (cfg.city) rows.push(`<p class="muted"><strong>Área de servicio:</strong> ${cfg.city}</p>`);
+      if (cfg.hasValue(cfg.businessProfile.corporateEmail)) {
+        rows.push(`<p class="muted"><strong>Correo corporativo:</strong> ${cfg.businessProfile.corporateEmail}</p>`);
+      }
+      if (cfg.hasValue(cfg.businessProfile.businessHours)) {
+        rows.push(`<p class="muted"><strong>Horario:</strong> ${cfg.businessProfile.businessHours}</p>`);
+      }
+      if (cfg.hasValue(cfg.businessProfile.responseTime)) {
+        rows.push(`<p class="muted"><strong>Tiempo de respuesta:</strong> ${cfg.businessProfile.responseTime}</p>`);
+      }
+      rows.push(`<p class="muted"><strong>Redes:</strong> <a class="js-track-social" data-network="instagram" href="${cfg.social.instagram}" target="_blank" rel="noopener">Instagram</a>, <a class="js-track-social" data-network="facebook" href="${cfg.social.facebook}" target="_blank" rel="noopener">Facebook</a>, <a class="js-track-social" data-network="tiktok" href="${cfg.social.tiktok}" target="_blank" rel="noopener">TikTok</a></p>`);
+      facts.innerHTML = rows.join("");
     }
   </script>
   <script src="js/sw-register.js"></script>

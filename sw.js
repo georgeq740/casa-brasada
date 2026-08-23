@@ -1,15 +1,18 @@
-const CACHE = "casa-brasada-v8";
+const CACHE = "casa-brasada-v9";
 const ASSETS = [
   "./",
   "./index.html",
   "./experiencia.html",
+  "./empresas.html",
   "./eventos.html",
   "./cotizar.html",
   "./contacto.html",
   "./css/styles.css",
   "./js/config.js",
+  "./js/forms.js",
   "./js/layout.js",
   "./js/cotizador.js",
+  "./js/empresas.js",
   "./assets/icons/favicon.svg",
   "./assets/icons/logo.png",
   "./assets/icons/icon-192.png",
