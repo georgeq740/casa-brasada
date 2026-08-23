@@ -1,4 +1,4 @@
-const CACHE = "casa-brasada-v7";
+const CACHE = "casa-brasada-v8";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,10 +10,11 @@ const ASSETS = [
   "./js/config.js",
   "./js/layout.js",
   "./js/cotizador.js",
-  "./js/layout.js",
   "./assets/icons/favicon.svg",
   "./assets/icons/logo.png",
   "./assets/icons/icon-192.png",
+  "./assets/photos/hero-asado.jpg",
+  "./assets/social/og-image.jpg",
 ];
 
 self.addEventListener("install", (event) => {
@@ -39,6 +40,15 @@ self.addEventListener("fetch", (event) => {
         caches.open(CACHE).then((cache) => cache.put(event.request, copy));
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html")))
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+
+        const accept = event.request.headers.get("accept") || "";
+        const isDocument =
+          event.request.mode === "navigate" || accept.includes("text/html");
+        if (isDocument) return caches.match("./index.html");
+        return Response.error();
+      })
   );
 });

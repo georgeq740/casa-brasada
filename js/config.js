@@ -25,20 +25,35 @@ window.CASA_BRASADA = {
     grado: "Grado",
     finca: "Finca o en casa",
   },
+  // Tarifas logísticas pendientes de confirmación del propietario.
+  // logisticsBasePrice debe permanecer null hasta tener un valor real.
+  commercialRules: {
+    minimumGuests: 10,
+    plateMin: 30000,
+    plateMax: 150000,
+    plateSliderMax: 120000,
+    extraWaiterPrice: 80000,
+    extraWaiterMax: 10,
+    drinkBarPerGuest: 10000,
+    beefMinGrams: 150,
+    logisticsBasePrice: null,
+    furnitureIncluded: false,
+    transportIncluded: false,
+  },
   waUrl(text) {
     return `https://wa.me/${this.whatsapp}?text=${encodeURIComponent(text)}`;
   },
   track(eventName, params) {
     const detail = Object.assign({ event: eventName }, params || {});
+
     try {
-      if (Array.isArray(window.dataLayer)) {
-        window.dataLayer.push(detail);
-      }
       if (typeof window.gtag === "function") {
         window.gtag("event", eventName, params || {});
+      } else if (Array.isArray(window.dataLayer)) {
+        window.dataLayer.push(detail);
       }
-    } catch (err) {
-      // Analytics is optional; never break the page.
+    } catch (error) {
+      // La analítica es opcional y nunca debe romper la página.
     }
   },
 };
