@@ -3,17 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cotizar plato de asado | Casa Brasada</title>
-  <meta name="description" content="Arma tu plato de asado según el presupuesto. Ejemplo: $40.000 incluyen 250 g de res, 2 papas saladas, yuca, arepa boyacense y bebida.">
+  <title>Cotizar asado para eventos en Bogotá | Casa Brasada</title>
+  <meta name="description" content="Calcula una propuesta de asado para tu evento. Elige presupuesto por persona o arma el menú y envía la estimación por WhatsApp.">
   <meta name="theme-color" content="#120d0b">
-  <link rel="canonical" href="https://casabrasada.com/cotizar.html">
+  <link rel="canonical" href="https://georgeq740.github.io/casa-brasada/cotizar.html">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
-  <meta property="og:title" content="Cotiza tu asado | Casa Brasada">
-  <meta property="og:description" content="Ingresa el valor del plato y mira cómo se arma la parrilla. Envía la cotización por WhatsApp.">
-  <meta property="og:image" content="https://casabrasada.com/assets/social/og-image.jpg">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Cotiza tu evento con asado | Casa Brasada">
+  <meta property="og:description" content="Estimación inicial de menú y servicios para asados en vivo. Envíala por WhatsApp.">
+  <meta property="og:image" content="https://georgeq740.github.io/casa-brasada/assets/social/og-image.jpg">
+  <meta property="og:url" content="https://georgeq740.github.io/casa-brasada/cotizar.html">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Cotiza tu evento con asado | Casa Brasada">
+  <meta name="twitter:description" content="Arma el menú y solicita una propuesta por WhatsApp.">
+  <meta name="twitter:image" content="https://georgeq740.github.io/casa-brasada/assets/social/og-image.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
@@ -21,99 +27,106 @@
 </head>
 <body data-page="cotizar">
   <header id="site-header"></header>
-  <section class="page-hero">
-    <div class="wrap">
-      <p class="eyebrow">Cotizador de plato</p>
-      <h1>Arma el plato a tu gusto.</h1>
-      <p class="muted">Elige un presupuesto y te decimos qué incluye, o selecciona cada ingrediente y te damos el costo. La cotización se va por WhatsApp.</p>
-    </div>
-  </section>
-  <section>
-    <div class="wrap form-grid">
-      <form id="quote-form" class="panel">
-        <label for="name">Tu nombre</label>
-        <input id="name" name="name" required placeholder="Ana Pérez">
+  <main id="contenido">
+    <section class="page-hero">
+      <div class="wrap">
+        <p class="eyebrow">Cotizador de evento</p>
+        <h1>Calcula una propuesta para tu evento.</h1>
+        <p class="muted">Selecciona un presupuesto por persona o arma el menú a tu gusto. Obtendrás una estimación inicial que podrás enviar a nuestro equipo por WhatsApp.</p>
+      </div>
+    </section>
+    <section>
+      <div class="wrap form-grid">
+        <form id="quote-form" class="panel" novalidate>
+          <label for="name">Tu nombre</label>
+          <input id="name" name="name" required autocomplete="name" placeholder="Ana Pérez">
 
-        <label for="event">Tipo de evento</label>
-        <select id="event" name="event" required>
-          <option value="Evento empresarial">Evento empresarial</option>
-          <option value="Despedida de fin de año">Despedida de fin de año</option>
-          <option value="Cumpleaños">Cumpleaños</option>
-          <option value="Bautizo">Bautizo</option>
-          <option value="Primera comunión">Primera comunión</option>
-          <option value="Matrimonio">Matrimonio</option>
-          <option value="15 años">15 años</option>
-          <option value="Grado">Grado</option>
-          <option value="Otro">Otro</option>
-        </select>
+          <label for="event">Tipo de evento</label>
+          <select id="event" name="event" required>
+            <option value="">Selecciona una opción</option>
+            <option value="Evento empresarial">Evento empresarial</option>
+            <option value="Despedida de fin de año">Despedida de fin de año</option>
+            <option value="Cumpleaños">Cumpleaños</option>
+            <option value="Bautizo">Bautizo</option>
+            <option value="Primera comunión">Primera comunión</option>
+            <option value="Matrimonio">Matrimonio</option>
+            <option value="15 años">15 años</option>
+            <option value="Grado">Grado</option>
+            <option value="Finca o en casa">Finca o en casa</option>
+            <option value="Otro">Otro</option>
+          </select>
 
-        <label for="date">Fecha tentativa</label>
-        <input id="date" name="date" type="date">
+          <label for="date">Fecha tentativa</label>
+          <input id="date" name="date" type="date" required>
 
-        <label for="guests">Número de invitados</label>
-        <input id="guests" name="guests" type="number" min="10" value="40" required>
+          <label for="guests">Número de invitados</label>
+          <input id="guests" name="guests" type="number" min="10" value="40" required inputmode="numeric">
 
-        <div class="mode-switch" role="tablist" aria-label="Cómo cotizar">
-          <button type="button" class="mode-btn active" data-mode="price">Por precio del plato</button>
-          <button type="button" class="mode-btn" data-mode="build">Armar mi plato</button>
-        </div>
-
-        <div id="mode-price">
-          <label for="price">Precio del plato (COP)</label>
-          <input id="price" name="price" type="number" min="30000" max="150000" step="1000" value="40000">
-          <input id="price-range" type="range" min="30000" max="120000" step="1000" value="40000" aria-label="Ajustar precio del plato">
-          <p class="price-display" id="price-label">$40.000</p>
-        </div>
-
-        <div id="mode-build" hidden>
-          <p class="muted">Suma o resta cada ingrediente. El costo del plato se calcula al instante.</p>
-          <div id="builder-list"></div>
-        </div>
-
-        <div class="included-note">
-          <p><strong>Incluido en la cotización:</strong> parrillero, 1 mesero, mesas y sillas.</p>
-        </div>
-
-        <label>Meseros adicionales</label>
-        <p class="muted">El primer mesero ya va incluido. Cada adicional vale $80.000. Máximo 10.</p>
-        <div class="builder-row">
-          <div>
-            <strong>Mesero adicional</strong>
-            <small>$80.000 c/u</small>
+          <div class="mode-switch" role="tablist" aria-label="Cómo cotizar">
+            <button type="button" class="mode-btn active" data-mode="price" role="tab" aria-selected="true">Por precio del plato</button>
+            <button type="button" class="mode-btn" data-mode="build" role="tab" aria-selected="false">Armar mi plato</button>
           </div>
-          <div class="stepper">
-            <button type="button" id="waiter-minus" aria-label="Quitar mesero">−</button>
-            <span id="waiter-count">0</span>
-            <button type="button" id="waiter-plus" aria-label="Agregar mesero">+</button>
+
+          <div id="mode-price">
+            <label for="price">Precio del plato (COP)</label>
+            <input id="price" name="price" type="number" min="30000" max="150000" step="1000" value="40000">
+            <input id="price-range" type="range" min="30000" max="120000" step="1000" value="40000" aria-label="Ajustar precio del plato">
+            <p class="price-display" id="price-label">$40.000</p>
           </div>
-        </div>
 
-        <label>Adicionales</label>
-        <label><input id="drink-bar" type="checkbox" name="extras" value="Barra de bebidas" data-per-guest="10000"> Barra de bebidas ($10.000 por persona)</label>
-        <label><input type="checkbox" name="extras" value="Decoración"> Decoración</label>
+          <div id="mode-build" hidden>
+            <p class="muted">Suma o resta cada ingrediente. El costo del plato se calcula al instante.</p>
+            <div id="builder-list"></div>
+          </div>
 
-        <label for="notes">Notas</label>
-        <textarea id="notes" name="notes" rows="3" placeholder="Lugar, hora, alergias o cortes favoritos"></textarea>
+          <div class="included-note">
+            <p><strong>Incluido en esta estimación:</strong> parrillero, 1 mesero, mesas y sillas. La propuesta final se confirma según el evento.</p>
+          </div>
 
-        <button class="btn btn-ember" type="submit">Enviar cotización por WhatsApp</button>
-      </form>
+          <p id="waiter-label">Meseros adicionales</p>
+          <p class="muted">El primer mesero ya va incluido. Cada adicional vale $80.000. Máximo 10.</p>
+          <div class="builder-row">
+            <div>
+              <strong>Mesero adicional</strong>
+              <small>$80.000 c/u</small>
+            </div>
+            <div class="stepper">
+              <button type="button" id="waiter-minus" aria-label="Quitar mesero">−</button>
+              <span id="waiter-count" aria-labelledby="waiter-label">0</span>
+              <button type="button" id="waiter-plus" aria-label="Agregar mesero">+</button>
+            </div>
+          </div>
 
-      <aside class="panel plate">
-        <p class="eyebrow">Tu plato</p>
-        <h2 id="plate-name">Brasa Clásica</h2>
-        <div id="plate-box"></div>
-        <div class="total-box">
-          <p class="muted" id="total-caption">Total estimado de alimentos</p>
-          <p class="muted" id="unit-caption"></p>
-          <p class="price-display" id="total-label">$1.600.000</p>
-        </div>
-      </aside>
-    </div>
-  </section>
+          <fieldset>
+            <legend>Adicionales</legend>
+            <label><input id="drink-bar" type="checkbox" name="extras" value="Barra de bebidas" data-per-guest="10000"> Barra de bebidas ($10.000 por persona)</label>
+            <label><input type="checkbox" name="extras" value="Decoración"> Decoración</label>
+          </fieldset>
+
+          <label for="notes">Ubicación o notas</label>
+          <textarea id="notes" name="notes" rows="3" placeholder="Lugar, hora, alergias o cortes favoritos"></textarea>
+
+          <button class="btn btn-ember" type="submit">Solicitar propuesta por WhatsApp</button>
+        </form>
+
+        <aside class="panel plate" aria-live="polite">
+          <p class="eyebrow">Tu propuesta</p>
+          <h2 id="plate-name">Brasa Clásica</h2>
+          <div id="plate-box"></div>
+          <div class="total-box">
+            <p class="muted" id="total-caption">Inversión estimada</p>
+            <p class="muted" id="unit-caption"></p>
+            <p class="price-display" id="total-label">$1.600.000</p>
+            <p class="estimate-note">Este valor es una estimación inicial. La propuesta final puede variar según la fecha, ubicación, número de invitados, transporte, montaje y servicios seleccionados.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
   <footer id="site-footer"></footer>
   <script src="js/config.js"></script>
   <script src="js/layout.js"></script>
-  <script src="js/cotizador.js?v=11"></script>
+  <script src="js/cotizador.js?v=12"></script>
   <script src="js/sw-register.js"></script>
 </body>
 </html>

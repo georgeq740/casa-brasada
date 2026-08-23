@@ -247,17 +247,33 @@
   function setMode(next) {
     mode = next;
     form.querySelectorAll(".mode-btn").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.mode === mode);
+      const active = btn.dataset.mode === mode;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", String(active));
     });
     modePrice.hidden = mode !== "price";
     modeBuild.hidden = mode !== "build";
     priceInput.required = mode === "price";
+    cfg.track("quote_mode_change", { mode });
     render();
   }
 
   form.querySelectorAll(".mode-btn").forEach((btn) => {
     btn.addEventListener("click", () => setMode(btn.dataset.mode));
   });
+
+  const preset = new URLSearchParams(window.location.search).get("evento");
+  const eventSelect = form.querySelector("#event");
+  if (preset && cfg.eventPresets?.[preset] && eventSelect) {
+    eventSelect.value = cfg.eventPresets[preset];
+  }
+
+  let quoteStarted = false;
+  form.addEventListener("focusin", () => {
+    if (quoteStarted) return;
+    quoteStarted = true;
+    cfg.track("quote_start", { mode });
+  }, { once: true });
 
   builderList.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-id]");
@@ -286,52 +302,125 @@
   renderWaiters();
   render();
 
+  function clearFieldErrors() {
+    form.querySelectorAll(".field-error").forEach((el) => el.remove());
+    form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+  }
+
+  function setFieldError(input, message) {
+    if (!input) return;
+    input.setAttribute("aria-invalid", "true");
+    const error = document.createElement("p");
+    error.className = "field-error";
+    error.id = `${input.id || "field"}-error`;
+    error.setAttribute("role", "alert");
+    error.textContent = message;
+    input.insertAdjacentElement("afterend", error);
+    input.setAttribute("aria-describedby", error.id);
+  }
+
+  function validateQuote(plate) {
+    clearFieldErrors();
+    const name = form.querySelector("#name");
+    const eventType = form.querySelector("#event");
+    const guestsField = form.querySelector("#guests");
+    const firstError = [];
+
+    if (!name?.value.trim()) {
+      setFieldError(name, "Escribe tu nombre para enviar la propuesta.");
+      firstError.push(name);
+    }
+    if (!eventType?.value) {
+      setFieldError(eventType, "Selecciona el tipo de evento.");
+      firstError.push(eventType);
+    }
+    if (!dateInput?.value) {
+      setFieldError(dateInput, "Indica una fecha tentativa.");
+      firstError.push(dateInput);
+    } else if (dateInput.min && dateInput.value < dateInput.min) {
+      setFieldError(dateInput, "La fecha tentativa no puede ser anterior a hoy.");
+      firstError.push(dateInput);
+    }
+    const guestCount = Number(guestsField?.value);
+    if (!guestCount || guestCount < 10) {
+      setFieldError(guestsField, "Indica al menos 10 invitados.");
+      firstError.push(guestsField);
+    }
+    if (mode === "price") {
+      const price = Number(priceInput.value);
+      if (!price || price < 30000) {
+        setFieldError(priceInput, "Elige un valor por persona de al menos $30.000.");
+        firstError.push(priceInput);
+      }
+    } else if (plate.unitPrice <= 0) {
+      const note = document.createElement("p");
+      note.className = "field-error";
+      note.id = "build-error";
+      note.setAttribute("role", "alert");
+      note.textContent = "Agrega al menos un ingrediente para armar el menú.";
+      modeBuild?.prepend(note);
+      firstError.push(builderList);
+    }
+
+    if (firstError.length) {
+      firstError[0].focus?.();
+      return false;
+    }
+    return true;
+  }
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(form);
     const guests = Number(data.get("guests"));
     const plate = currentPlate();
-    if (mode === "build" && plate.unitPrice <= 0) {
-      alert("Arma el plato con al menos un ingrediente para cotizar.");
-      return;
-    }
-    if (dateInput?.value && dateInput.min && dateInput.value < dateInput.min) {
-      alert("La fecha tentativa no puede ser anterior a hoy.");
-      dateInput.focus();
-      return;
-    }
+    if (!validateQuote(plate)) return;
+
     const extras = [...form.querySelectorAll("input[name='extras']:checked")].map(
       (el) => el.value
     );
     const otherExtras = extras.filter((item) => item !== "Barra de bebidas");
+    const estimate = money(eventTotal(plate, guests));
 
     const lines = [
-      `Hola ${cfg.brand}, quiero cotizar un evento.`,
+      `Hola ${cfg.brand}, quiero solicitar una propuesta para mi evento.`,
       "",
-      `Nombre: ${data.get("name")}`,
-      `Evento: ${data.get("event")}`,
-      `Fecha: ${data.get("date") || "por definir"}`,
-      `Invitados: ${guests}`,
+      "Datos del evento",
+      `Nombre: ${String(data.get("name") || "").trim()}`,
+      `Tipo de evento: ${data.get("event")}`,
+      `Fecha tentativa: ${data.get("date")}`,
+      `Número de invitados: ${guests}`,
+      `Ubicación o notas: ${String(data.get("notes") || "").trim() || "por confirmar"}`,
+      "",
+      "Modalidad",
       mode === "price"
-        ? `Modo: por precio del plato (${money(plate.unitPrice)})`
-        : `Modo: plato armado (${money(plate.unitPrice)} por persona)`,
+        ? `Por precio del plato (${money(plate.unitPrice)} por persona)`
+        : `Plato armado (${money(plate.unitPrice)} por persona)`,
       "",
-      `Plato ${plate.name}:`,
+      `Menú · ${plate.name}`,
       ...plate.items.map((item) =>
         item.line
           ? `• ${item.qty} ${item.name} (${money(item.line)})`
           : `• ${item.qty} ${item.name}`
       ),
       "",
-      "Incluido: parrillero, 1 mesero, mesas y sillas.",
+      "Servicios adicionales",
+      "Incluido en la estimación: parrillero, 1 mesero, mesas y sillas.",
       extraWaiters
         ? `Meseros adicionales: ${extraWaiters} (${money(waiterCost())})`
-        : "",
-      drinkBarCost(guests) ? `Barra de bebidas: ${money(drinkBarCost(guests))}` : "",
-      otherExtras.length ? `Adicionales: ${otherExtras.join(", ")}` : "",
-      `Total estimado: ${money(eventTotal(plate, guests))}`,
-      data.get("notes") ? `Notas: ${data.get("notes")}` : "",
-    ].filter(Boolean);
+        : "Meseros adicionales: no",
+      drinkBarCost(guests)
+        ? `Barra de bebidas: ${money(drinkBarCost(guests))}`
+        : "Barra de bebidas: no",
+      otherExtras.length ? `Otros adicionales: ${otherExtras.join(", ")}` : null,
+      "",
+      `Inversión estimada: ${estimate}`,
+      "",
+      "Advertencia: este valor es una estimación inicial, pendiente de confirmación según fecha, ubicación, número de invitados, transporte, montaje y servicios seleccionados.",
+    ].filter((line) => line !== null);
+
+    cfg.track("quote_completed", { mode, guests, estimate: plate.unitPrice });
+    cfg.track("quote_whatsapp_click", { mode });
 
     window.open(
       `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(lines.join("\n"))}`,
