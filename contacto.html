@@ -3,17 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Contacto y redes | Casa Brasada</title>
-  <meta name="description" content="Habla con Casa Brasada por WhatsApp, Instagram, Facebook o TikTok. Asados y banquetes en Bogotá.">
+  <title>Contacto Casa Brasada | Asados en Bogotá</title>
+  <meta name="description" content="Habla con Casa Brasada por WhatsApp al 310 227 8456. Asados en vivo para eventos en Bogotá y alrededores.">
   <meta name="theme-color" content="#120d0b">
-  <link rel="canonical" href="https://casabrasada.com/contacto.html">
+  <link rel="canonical" href="https://georgeq740.github.io/casa-brasada/contacto.html">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_CO">
   <meta property="og:title" content="Contacto | Casa Brasada">
-  <meta property="og:description" content="WhatsApp, Instagram, Facebook y TikTok de Casa Brasada.">
-  <meta property="og:image" content="https://casabrasada.com/assets/social/og-image.jpg">
+  <meta property="og:description" content="WhatsApp 310 227 8456. Cotiza asados para eventos en Bogotá.">
+  <meta property="og:image" content="https://georgeq740.github.io/casa-brasada/assets/social/og-image.jpg">
+  <meta property="og:url" content="https://georgeq740.github.io/casa-brasada/contacto.html">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Contacto | Casa Brasada">
+  <meta name="twitter:description" content="Escríbenos por WhatsApp para cotizar tu evento.">
+  <meta name="twitter:image" content="https://georgeq740.github.io/casa-brasada/assets/social/og-image.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
@@ -21,28 +27,34 @@
 </head>
 <body data-page="contacto">
   <header id="site-header"></header>
-  <section class="page-hero">
-    <div class="wrap">
-      <p class="eyebrow">Hablemos</p>
-      <h1>La brasa se reserva por WhatsApp.</h1>
-    </div>
-  </section>
-  <section>
-    <div class="wrap">
-      <article class="panel">
-        <h2>WhatsApp</h2>
-        <p class="price-display"><a href="tel:+573102278456">310 227 8456</a></p>
-        <p><a class="btn btn-ember" id="wa-contact" href="#" target="_blank" rel="noopener">Escribir ahora</a></p>
-      </article>
-    </div>
-  </section>
+  <main id="contenido">
+    <section class="page-hero">
+      <div class="wrap">
+        <p class="eyebrow">Hablemos</p>
+        <h1>La brasa se reserva por WhatsApp.</h1>
+        <p class="muted">Cuéntanos el tipo de evento, la fecha, el lugar y cuántos invitados. Te armamos una propuesta de asado en vivo.</p>
+      </div>
+    </section>
+    <section>
+      <div class="wrap">
+        <article class="panel">
+          <h2>WhatsApp</h2>
+          <p class="price-display"><a class="js-track-phone" href="tel:+573102278456">310 227 8456</a></p>
+          <p><a class="btn btn-ember js-track-wa" data-track="wa_cta_click" id="wa-contact" href="#" target="_blank" rel="noopener">Escribir ahora</a></p>
+        </article>
+      </div>
+    </section>
+    <div id="site-faq"></div>
+  </main>
   <footer id="site-footer"></footer>
   <script src="js/config.js"></script>
   <script src="js/layout.js"></script>
   <script>
     const cfg = window.CASA_BRASADA;
-    document.getElementById("wa-contact").href =
-      `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent("Hola Casa Brasada, quiero información de un evento.")}`;
+    const link = document.getElementById("wa-contact");
+    if (link && cfg) {
+      link.href = cfg.waUrl("Hola Casa Brasada, quiero información de un evento.");
+    }
   </script>
   <script src="js/sw-register.js"></script>
 </body>

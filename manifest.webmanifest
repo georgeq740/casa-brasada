@@ -1,7 +1,7 @@
 {
   "name": "Casa Brasada",
   "short_name": "Brasada",
-  "description": "Casa de banquetes con foco en experiencias de asado.",
+  "description": "Casa de banquetes especializada en asados en vivo con esencia boyacense.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

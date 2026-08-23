@@ -1,4 +1,4 @@
-const CACHE = "casa-brasada-v6";
+const CACHE = "casa-brasada-v7";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,7 +10,9 @@ const ASSETS = [
   "./js/config.js",
   "./js/layout.js",
   "./js/cotizador.js",
+  "./js/layout.js",
   "./assets/icons/favicon.svg",
+  "./assets/icons/logo.png",
   "./assets/icons/icon-192.png",
 ];
 

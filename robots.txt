@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://casabrasada.com/sitemap.xml
+Sitemap: https://georgeq740.github.io/casa-brasada/sitemap.xml
