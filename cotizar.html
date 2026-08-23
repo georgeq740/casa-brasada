@@ -24,8 +24,8 @@
   <section class="page-hero">
     <div class="wrap">
       <p class="eyebrow">Cotizador de plato</p>
-      <h1>Pon el precio. Nosotros armamos la brasa.</h1>
-      <p class="muted">Mueve el valor por persona y el plato se construye en vivo. Al final, la cotización se va por WhatsApp.</p>
+      <h1>Arma el plato a tu gusto.</h1>
+      <p class="muted">Elige un presupuesto y te decimos qué incluye, o selecciona cada ingrediente y te damos el costo. La cotización se va por WhatsApp.</p>
     </div>
   </section>
   <section>
@@ -47,21 +47,49 @@
           <option value="Otro">Otro</option>
         </select>
 
-        <label for="date">Fecha tentativo</label>
+        <label for="date">Fecha tentativa</label>
         <input id="date" name="date" type="date">
 
         <label for="guests">Número de invitados</label>
         <input id="guests" name="guests" type="number" min="10" value="40" required>
 
-        <label for="price">Precio del plato (COP)</label>
-        <input id="price" name="price" type="number" min="25000" max="150000" step="1000" value="40000" required>
-        <input id="price-range" type="range" min="25000" max="120000" step="1000" value="40000" aria-label="Ajustar precio del plato">
-        <p class="price-display" id="price-label">$40.000</p>
+        <div class="mode-switch" role="tablist" aria-label="Cómo cotizar">
+          <button type="button" class="mode-btn active" data-mode="price">Por precio del plato</button>
+          <button type="button" class="mode-btn" data-mode="build">Armar mi plato</button>
+        </div>
+
+        <div id="mode-price">
+          <label for="price">Precio del plato (COP)</label>
+          <input id="price" name="price" type="number" min="25000" max="150000" step="1000" value="40000">
+          <input id="price-range" type="range" min="25000" max="120000" step="1000" value="40000" aria-label="Ajustar precio del plato">
+          <p class="price-display" id="price-label">$40.000</p>
+        </div>
+
+        <div id="mode-build" hidden>
+          <p class="muted">Suma o resta cada ingrediente. El costo del plato se calcula al instante.</p>
+          <div id="builder-list"></div>
+        </div>
+
+        <div class="included-note">
+          <p><strong>Incluido en la cotización:</strong> parrillero, 1 mesero, mesas y sillas.</p>
+        </div>
+
+        <label>Meseros adicionales</label>
+        <p class="muted">El primer mesero ya va incluido. Cada adicional vale $80.000. Máximo 10.</p>
+        <div class="builder-row">
+          <div>
+            <strong>Mesero adicional</strong>
+            <small>$80.000 c/u</small>
+          </div>
+          <div class="stepper">
+            <button type="button" id="waiter-minus" aria-label="Quitar mesero">−</button>
+            <span id="waiter-count">0</span>
+            <button type="button" id="waiter-plus" aria-label="Agregar mesero">+</button>
+          </div>
+        </div>
 
         <label>Adicionales</label>
-        <label><input type="checkbox" name="extras" value="Menaje y meseros"> Menaje y meseros</label>
-        <label><input type="checkbox" name="extras" value="Montaje de mesas"> Montaje de mesas</label>
-        <label><input type="checkbox" name="extras" value="Barra de cócteles"> Barra de cócteles</label>
+        <label><input id="drink-bar" type="checkbox" name="extras" value="Barra de bebidas" data-per-guest="10000"> Barra de bebidas ($10.000 por persona)</label>
         <label><input type="checkbox" name="extras" value="Decoración"> Decoración</label>
 
         <label for="notes">Notas</label>
@@ -75,7 +103,8 @@
         <h2 id="plate-name">Brasa Clásica</h2>
         <div id="plate-box"></div>
         <div class="total-box">
-          <p class="muted">Total estimado de alimentos</p>
+          <p class="muted" id="total-caption">Total estimado de alimentos</p>
+          <p class="muted" id="unit-caption"></p>
           <p class="price-display" id="total-label">$1.600.000</p>
         </div>
       </aside>
@@ -84,7 +113,7 @@
   <footer id="site-footer"></footer>
   <script src="js/config.js"></script>
   <script src="js/layout.js"></script>
-  <script src="js/cotizador.js"></script>
+  <script src="js/cotizador.js?v=10"></script>
   <script src="js/sw-register.js"></script>
 </body>
 </html>

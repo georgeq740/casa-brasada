@@ -1,5 +1,30 @@
 (function () {
   const cfg = window.CASA_BRASADA;
+  const MENU = [
+    { id: "res", name: "Carne de res", unit: "g", step: 50, min: 0, max: 500, price: 100 },
+    { id: "cerdo", name: "Cerdo ahumado", unit: "g", step: 50, min: 0, max: 400, price: 80 },
+    { id: "pollo", name: "Pollo a la brasa", unit: "g", step: 50, min: 0, max: 400, price: 70 },
+    { id: "chorizo", name: "Chorizo", unit: "und", step: 1, min: 0, max: 4, price: 6000 },
+    { id: "papa", name: "Papa salada", unit: "und", step: 1, min: 0, max: 6, price: 2000 },
+    { id: "yuca", name: "Yuca", unit: "und", step: 1, min: 0, max: 4, price: 3000 },
+    { id: "arepa", name: "Arepa boyacense", unit: "und", step: 1, min: 0, max: 4, price: 3500 },
+    { id: "maduro", name: "Maduro asado", unit: "und", step: 1, min: 0, max: 4, price: 3500 },
+    { id: "gaseosa", name: "Gaseosa", unit: "und", step: 1, min: 0, max: 6, price: 2500 },
+    { id: "cerveza", name: "Cerveza", unit: "und", step: 1, min: 0, max: 6, price: 4500 },
+    { id: "ensalada", name: "Ensalada", unit: "und", step: 1, min: 0, max: 3, price: 4000 },
+    { id: "postre", name: "Postre", unit: "und", step: 1, min: 0, max: 3, price: 6000 },
+  ];
+
+  const INCLUDED = [
+    { qty: "1", name: "parrillero" },
+    { qty: "1", name: "mesero" },
+    { qty: "Incluye", name: "mesas y sillas" },
+  ];
+  const qty = Object.fromEntries(MENU.map((item) => [item.id, item.id === "res" ? 150 : 0]));
+  const WAITER_PRICE = 80000;
+  const WAITER_MAX = 10;
+  let extraWaiters = 0;
+  let mode = "price";
 
   function money(n) {
     return new Intl.NumberFormat("es-CO", {
@@ -9,115 +34,97 @@
     }).format(n);
   }
 
+  function beefGrams(price) {
+    return 250 + Math.round((price - 40000) / 100);
+  }
+
   function composePlate(price) {
     const p = Math.max(25000, Math.min(150000, Number(price) || 25000));
-
-    if (p < 32000) {
-      return {
-        name: "Brasa Esencial",
-        items: [
-          { qty: "150 g", name: "carne de res a la brasa" },
-          { qty: "1", name: "papa salada" },
-          { qty: "1", name: "arepa" },
-          { qty: "1", name: "gaseosa" },
-        ],
-      };
-    }
-
-    if (p < 40000) {
-      return {
-        name: "Brasa Campestre",
-        items: [
-          { qty: "200 g", name: "carne de res a la brasa" },
-          { qty: "1", name: "papa salada" },
-          { qty: "1", name: "yuca" },
-          { qty: "1", name: "arepa boyacense" },
-          { qty: "1", name: "cerveza o 1 gaseosa" },
-        ],
-      };
-    }
-
-    if (p < 50000) {
-      return {
-        name: "Brasa Clásica",
-        items: [
-          { qty: "250 g", name: "carne de res" },
-          { qty: "2", name: "papas saladas" },
-          { qty: "1", name: "yuca" },
-          { qty: "1", name: "arepa boyacense" },
-          { qty: "1", name: "cerveza o 2 gaseosas" },
-        ],
-      };
-    }
+    const items = [];
+    let name = "Brasa Esencial";
 
     if (p < 60000) {
-      return {
-        name: "Brasa Mayor",
-        items: [
-          { qty: "300 g", name: "carne de res" },
-          { qty: "2", name: "papas saladas" },
-          { qty: "1", name: "yuca" },
-          { qty: "1", name: "arepa boyacense" },
-          { qty: "1", name: "ensalada criolla" },
-          { qty: "1", name: "cerveza o 2 gaseosas" },
-        ],
-      };
+      items.push({
+        qty: `${beefGrams(p)} g`,
+        name: "carne de res a la brasa",
+        highlight: true,
+      });
+    } else if (p < 75000) {
+      items.push({ qty: `${beefGrams(40000)} g`, name: "carne de res a la brasa", highlight: true });
+      items.push({
+        qty: `${80 + Math.round((p - 60000) / 100)} g`,
+        name: "cerdo ahumado",
+      });
+    } else if (p < 95000) {
+      items.push({ qty: "300 g", name: "carne de res a la brasa" });
+      items.push({ qty: "150 g", name: "cerdo ahumado" });
+      items.push({ qty: "100 g", name: "pollo a la brasa" });
+    } else {
+      items.push({ qty: "350 g", name: "lomo de res" });
+      items.push({ qty: "150 g", name: "cerdo ahumado" });
+      items.push({ qty: "100 g", name: "pollo a la brasa" });
     }
 
-    if (p < 75000) {
-      return {
-        name: "Brasa Mixta",
-        items: [
-          { qty: "250 g", name: "carne de res" },
-          { qty: "150 g", name: "cerdo a la parrilla" },
-          { qty: "1", name: "chorizo" },
-          { qty: "2", name: "papas saladas" },
-          { qty: "1", name: "yuca" },
-          { qty: "1", name: "arepa boyacense" },
-          { qty: "1", name: "maduro asado" },
-          { qty: "1", name: "cerveza o 2 gaseosas" },
-        ],
-      };
-    }
+    if (p >= 60000) items.push({ qty: "1", name: "chorizo" });
 
-    if (p < 95000) {
-      return {
-        name: "Brasa de Fiesta",
-        items: [
-          { qty: "300 g", name: "carne de res" },
-          { qty: "150 g", name: "cerdo" },
-          { qty: "1", name: "chorizo" },
-          { qty: "1", name: "morcilla" },
-          { qty: "2", name: "papas saladas" },
-          { qty: "1", name: "yuca" },
-          { qty: "1", name: "arepa boyacense" },
-          { qty: "1", name: "ensalada y hogao" },
-          { qty: "1", name: "postre de la casa" },
-          { qty: "2", name: "cervezas o 3 gaseosas" },
-        ],
-      };
-    }
+    const papas = p < 38000 ? 1 : 2;
+    items.push({
+      qty: String(papas),
+      name: papas === 1 ? "papa salada" : "papas saladas",
+    });
 
-    return {
-      name: "Brasa Premium",
-      items: [
-        { qty: "350 g", name: "lomo de res" },
-        { qty: "150 g", name: "cerdo ahumado" },
-        { qty: "100 g", name: "pollo a la brasa" },
-        { qty: "1", name: "chorizo artesanal" },
-        { qty: "1", name: "morcilla" },
-        { qty: "2", name: "papas saladas" },
-        { qty: "1", name: "yuca" },
-        { qty: "1", name: "arepa boyacense" },
-        { qty: "1", name: "guarnición gourmet y ensalada" },
-        { qty: "1", name: "postre" },
-        { qty: "1", name: "barra de bebidas por persona" },
-      ],
-    };
+    if (p >= 30000) items.push({ qty: "1", name: "yuca" });
+    items.push({
+      qty: "1",
+      name: p >= 35000 ? "arepa boyacense" : "arepa",
+    });
+
+    if (p >= 50000) items.push({ qty: "1", name: "ensalada criolla" });
+    if (p >= 65000) items.push({ qty: "1", name: "maduro asado" });
+    if (p >= 80000) items.push({ qty: "1", name: "postre de la casa" });
+    if (p >= 95000) items.push({ qty: "1", name: "guarnición gourmet" });
+
+    if (p < 32000) items.push({ qty: "1", name: "gaseosa" });
+    else if (p < 40000) items.push({ qty: "1", name: "cerveza o 1 gaseosa" });
+    else if (p < 80000) items.push({ qty: "1", name: "cerveza o 2 gaseosas" });
+    else items.push({ qty: "2", name: "cervezas o 3 gaseosas" });
+
+    if (p >= 95000) name = "Brasa Premium";
+    else if (p >= 80000) name = "Brasa de Fiesta";
+    else if (p >= 60000) name = "Brasa Mixta";
+    else if (p >= 50000) name = "Brasa Mayor";
+    else if (p >= 40000) name = "Brasa Clásica";
+    else if (p >= 30000) name = "Brasa Campestre";
+
+    return { name, items, unitPrice: p };
+  }
+
+  function builtPlate() {
+    const items = MENU.filter((item) => qty[item.id] > 0).map((item) => {
+      const amount = qty[item.id];
+      const line = amount * item.price;
+      const label = item.unit === "g" ? `${amount} g` : String(amount);
+      return {
+        qty: label,
+        name: item.name,
+        line,
+      };
+    });
+    const unitPrice = items.reduce((sum, item) => sum + item.line, 0);
+    return { name: "Plato armado", items, unitPrice };
   }
 
   const form = document.getElementById("quote-form");
   if (!form) return;
+
+  const dateInput = form.querySelector("#date");
+  if (dateInput) {
+    const today = new Date();
+    const iso = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 10);
+    dateInput.min = iso;
+  }
 
   const priceInput = form.querySelector("#price");
   const priceRange = form.querySelector("#price-range");
@@ -126,6 +133,10 @@
   const priceLabel = document.getElementById("price-label");
   const totalLabel = document.getElementById("total-label");
   const plateName = document.getElementById("plate-name");
+  const unitCaption = document.getElementById("unit-caption");
+  const builderList = document.getElementById("builder-list");
+  const modePrice = document.getElementById("mode-price");
+  const modeBuild = document.getElementById("mode-build");
 
   function syncPrice(source) {
     const next = Math.max(25000, Math.min(150000, Number(source.value) || 25000));
@@ -134,35 +145,165 @@
     return next;
   }
 
-  function render(event) {
-    const source = event?.target?.id === "price-range" ? priceRange : priceInput;
-    const price = syncPrice(source || priceInput);
-    const guests = Math.max(1, Number(guestsInput.value) || 1);
-    const plate = composePlate(price);
-
-    priceLabel.textContent = money(price);
-    plateName.textContent = plate.name;
-    totalLabel.textContent = money(price * guests);
-    plateBox.innerHTML = plate.items
-      .map(
-        (item) =>
-          `<div class="plate-item"><strong>${item.qty}</strong><span>${item.name}</span></div>`
-      )
-      .join("");
+  function waiterCost() {
+    return extraWaiters * WAITER_PRICE;
   }
 
+  function drinkBarCost(guests) {
+    const bar = form.querySelector("#drink-bar");
+    if (!bar?.checked) return 0;
+    return guests * Number(bar.dataset.perGuest || 0);
+  }
+
+  function eventTotal(plate, guests) {
+    return plate.unitPrice * guests + waiterCost() + drinkBarCost(guests);
+  }
+
+  function renderWaiters() {
+    const count = document.getElementById("waiter-count");
+    if (count) count.textContent = String(extraWaiters);
+  }
+
+  function currentPlate() {
+    if (mode === "build") return builtPlate();
+    return composePlate(Number(priceInput.value));
+  }
+
+  function renderPlate() {
+    const guests = Math.max(1, Number(guestsInput.value) || 1);
+    const plate = currentPlate();
+    const food = plate.unitPrice * guests;
+    const waiters = waiterCost();
+    const drinks = drinkBarCost(guests);
+    plateName.textContent = plate.name;
+    totalLabel.textContent = money(food + waiters + drinks);
+    if (unitCaption) {
+      const foodLine =
+        plate.unitPrice > 0
+          ? `${money(plate.unitPrice)} por persona · ${guests} invitados`
+          : "Agrega ingredientes para ver el costo";
+      const waiterLine = extraWaiters
+        ? ` · ${extraWaiters} mesero${extraWaiters > 1 ? "s" : ""} adicional${extraWaiters > 1 ? "es" : ""} (${money(waiters)})`
+        : "";
+      const drinkLine = drinks ? ` · barra de bebidas (${money(drinks)})` : "";
+      unitCaption.textContent = foodLine + waiterLine + drinkLine;
+    }
+    const waiterRows = extraWaiters
+      ? `<div class="plate-item"><strong>${extraWaiters}</strong><span>mesero${extraWaiters > 1 ? "s" : ""} adicional${extraWaiters > 1 ? "es" : ""}</span><em>${money(waiters)}</em></div>`
+      : "";
+    const drinkRow = drinks
+      ? `<div class="plate-item"><strong>1</strong><span>barra de bebidas</span><em>${money(drinks)}</em></div>`
+      : "";
+    plateBox.innerHTML =
+      (plate.items.length
+        ? plate.items
+            .map((item) => {
+              const extra = item.line ? `<em>${money(item.line)}</em>` : "";
+              const cls = item.highlight ? " plate-item-main" : "";
+              return `<div class="plate-item${cls}"><strong>${item.qty}</strong><span>${item.name}</span>${extra}</div>`;
+            })
+            .join("")
+        : `<p class="muted">Todavía no hay ingredientes en el plato.</p>`) +
+      `<div class="included-box">
+        <p class="eyebrow">También incluye</p>
+        ${INCLUDED.map(
+          (item) =>
+            `<div class="plate-item"><strong>${item.qty}</strong><span>${item.name}</span></div>`
+        ).join("")}
+        ${waiterRows}
+        ${drinkRow}
+      </div>`;
+  }
+
+  function render(event) {
+    if (mode === "price") {
+      const source = event?.target?.id === "price-range" ? priceRange : priceInput;
+      const price = syncPrice(source || priceInput);
+      priceLabel.textContent = money(price);
+    }
+    renderPlate();
+  }
+
+  function renderBuilder() {
+    builderList.innerHTML = MENU.map((item) => {
+      const amount = qty[item.id];
+      const shown = item.unit === "g" ? `${amount} g` : amount;
+      const rate = item.unit === "g" ? `${money(item.price)} / g` : `${money(item.price)} c/u`;
+      return `
+        <div class="builder-row">
+          <div>
+            <strong>${item.name}</strong>
+            <small>${rate}</small>
+          </div>
+          <div class="stepper">
+            <button type="button" data-id="${item.id}" data-dir="-1" aria-label="Quitar ${item.name}">−</button>
+            <span>${shown}</span>
+            <button type="button" data-id="${item.id}" data-dir="1" aria-label="Agregar ${item.name}">+</button>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  function setMode(next) {
+    mode = next;
+    form.querySelectorAll(".mode-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.mode === mode);
+    });
+    modePrice.hidden = mode !== "price";
+    modeBuild.hidden = mode !== "build";
+    priceInput.required = mode === "price";
+    render();
+  }
+
+  form.querySelectorAll(".mode-btn").forEach((btn) => {
+    btn.addEventListener("click", () => setMode(btn.dataset.mode));
+  });
+
+  builderList.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-id]");
+    if (!button) return;
+    const item = MENU.find((entry) => entry.id === button.dataset.id);
+    const dir = Number(button.dataset.dir);
+    const next = qty[item.id] + dir * item.step;
+    qty[item.id] = Math.min(item.max, Math.max(item.min, next));
+    renderBuilder();
+    renderPlate();
+  });
+
+  document.getElementById("waiter-minus")?.addEventListener("click", () => {
+    extraWaiters = Math.max(0, extraWaiters - 1);
+    renderWaiters();
+    renderPlate();
+  });
+  document.getElementById("waiter-plus")?.addEventListener("click", () => {
+    extraWaiters = Math.min(WAITER_MAX, extraWaiters + 1);
+    renderWaiters();
+    renderPlate();
+  });
+
   form.addEventListener("input", render);
+  renderBuilder();
+  renderWaiters();
   render();
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(form);
-    const price = Number(data.get("price"));
     const guests = Number(data.get("guests"));
-    const plate = composePlate(price);
+    const plate = currentPlate();
+    if (mode === "build" && plate.unitPrice <= 0) {
+      alert("Arma el plato con al menos un ingrediente para cotizar.");
+      return;
+    }
+    if (dateInput?.value && dateInput.min && dateInput.value < dateInput.min) {
+      alert("La fecha tentativa no puede ser anterior a hoy.");
+      dateInput.focus();
+      return;
+    }
     const extras = [...form.querySelectorAll("input[name='extras']:checked")].map(
       (el) => el.value
     );
+    const otherExtras = extras.filter((item) => item !== "Barra de bebidas");
 
     const lines = [
       `Hola ${cfg.brand}, quiero cotizar un evento.`,
@@ -171,13 +312,24 @@
       `Evento: ${data.get("event")}`,
       `Fecha: ${data.get("date") || "por definir"}`,
       `Invitados: ${guests}`,
-      `Precio por plato: ${money(price)}`,
+      mode === "price"
+        ? `Modo: por precio del plato (${money(plate.unitPrice)})`
+        : `Modo: plato armado (${money(plate.unitPrice)} por persona)`,
       "",
       `Plato ${plate.name}:`,
-      ...plate.items.map((item) => `• ${item.qty} ${item.name}`),
+      ...plate.items.map((item) =>
+        item.line
+          ? `• ${item.qty} ${item.name} (${money(item.line)})`
+          : `• ${item.qty} ${item.name}`
+      ),
       "",
-      extras.length ? `Adicionales: ${extras.join(", ")}` : "Adicionales: ninguno por ahora",
-      `Total estimado de alimentos: ${money(price * guests)}`,
+      "Incluido: parrillero, 1 mesero, mesas y sillas.",
+      extraWaiters
+        ? `Meseros adicionales: ${extraWaiters} (${money(waiterCost())})`
+        : "",
+      drinkBarCost(guests) ? `Barra de bebidas: ${money(drinkBarCost(guests))}` : "",
+      otherExtras.length ? `Adicionales: ${otherExtras.join(", ")}` : "",
+      `Total estimado: ${money(eventTotal(plate, guests))}`,
       data.get("notes") ? `Notas: ${data.get("notes")}` : "",
     ].filter(Boolean);
 

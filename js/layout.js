@@ -58,7 +58,7 @@
         </div>
         <div>
           <h3>Cotiza tu brasa</h3>
-          <p class="muted">Dinos el valor del plato y armamos la parrilla: carne, papas, yuca, arepa y bebida.</p>
+          <p class="muted">Elige el valor o arma tu plato. La brasa, el corte y la cotización salen al instante.</p>
           <a class="btn btn-ember" href="cotizar.html">Armar mi plato</a>
         </div>
       </div>
