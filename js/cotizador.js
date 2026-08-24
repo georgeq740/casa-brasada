@@ -229,9 +229,12 @@
     root.innerHTML = cfg.decorationList()
       .map((option) => {
         const billing = cfg.decorationBillingLabel(option);
-        return `<label>
+        return `<label class="radio-option">
           <input type="radio" name="decoration" value="${option.id}" ${option.id === current ? "checked" : ""}>
-          <span>${option.label}${billing ? ` · ${billing}` : ""}</span>
+          <span>
+            <strong>${option.label}</strong>
+            ${billing ? `<small>${billing}</small>` : ""}
+          </span>
         </label>`;
       })
       .join("");
