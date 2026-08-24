@@ -35,8 +35,42 @@ window.CASA_BRASADA = {
     beefMinGrams: 150,
     builderMinimumPrice: 30000,
     logisticsBasePrice: null,
-    furnitureIncluded: false,
+    furnitureIncluded: true,
     transportIncluded: false,
+    includedWaiters: 1,
+    includedGrillCooks: 1,
+  },
+  includedServices: [
+    { id: "grill", label: "1 parrillero" },
+    { id: "waiter", label: "1 mesero" },
+    { id: "furniture", label: "Mesas y sillas según el número de invitados" },
+  ],
+  // Completar price solo con valores reales. null = no se cobra ni se inventa.
+  decorationOptions: {
+    none: {
+      id: "none",
+      label: "Sin decoración",
+      price: 0,
+      billingType: "event",
+    },
+    basic: {
+      id: "basic",
+      label: "Decoración básica",
+      price: null,
+      billingType: "event",
+    },
+    themed: {
+      id: "themed",
+      label: "Decoración temática",
+      price: null,
+      billingType: "event",
+    },
+    custom: {
+      id: "custom",
+      label: "Decoración personalizada por cotizar",
+      price: null,
+      billingType: "event",
+    },
   },
   // Completar solo con datos reales. Los campos null no se muestran.
   businessProfile: {
@@ -134,6 +168,30 @@ window.CASA_BRASADA = {
         return { key, label, value: Array.isArray(value) ? value.join(", ") : value };
       })
       .filter(Boolean);
+  },
+  decorationList() {
+    return Object.values(this.decorationOptions);
+  },
+  decorationById(id) {
+    return this.decorationList().find((item) => item.id === id) || this.decorationOptions.none;
+  },
+  decorationHasPrice(option) {
+    return Number.isFinite(option?.price) && option.price > 0;
+  },
+  decorationCost(option, guests) {
+    if (!this.decorationHasPrice(option)) return 0;
+    const count = option.billingType === "person" ? Math.max(1, Number(guests) || 1) : 1;
+    return option.price * count;
+  },
+  decorationBillingLabel(option) {
+    if (!option || option.id === "none") return "";
+    if (!this.decorationHasPrice(option)) return "Valor por cotizar";
+    const amount = new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      maximumFractionDigits: 0,
+    }).format(option.price);
+    return option.billingType === "person" ? `${amount} por persona` : `${amount} por evento`;
   },
   waUrl(text) {
     return `https://wa.me/${this.whatsapp}?text=${encodeURIComponent(text)}`;

@@ -19,13 +19,7 @@
     { id: "postre", name: "Postre", unit: "und", step: 1, min: 0, max: 3, price: 6000 },
   ];
 
-  const PENDING_SERVICES = [
-    { status: "por confirmar", name: "Parrillero" },
-    { status: "según invitados", name: "Meseros" },
-    { status: "por confirmar", name: "Mesas y sillas" },
-    { status: "por confirmar", name: "Montaje" },
-    { status: "según ubicación", name: "Transporte" },
-  ];
+  const INCLUDED_SERVICES = cfg.includedServices || [];
 
   const qty = Object.fromEntries(MENU.map((item) => [item.id, item.id === "res" ? rules.beefMinGrams : 0]));
   let extraWaiters = 0;
@@ -148,7 +142,7 @@
     }
     const waiterHelp = document.getElementById("waiter-help");
     if (waiterHelp) {
-      waiterHelp.textContent = `Puedes agregar meseros adicionales. Cada uno vale ${money(rules.extraWaiterPrice)}. Máximo ${rules.extraWaiterMax}. El personal de servicio se confirma según el evento.`;
+      waiterHelp.textContent = `La propuesta incluye ${rules.includedWaiters} mesero. Cada mesero adicional vale ${money(rules.extraWaiterPrice)}. Máximo ${rules.extraWaiterMax} adicionales.`;
     }
     const waiterRate = document.getElementById("waiter-rate");
     if (waiterRate) waiterRate.textContent = `${money(rules.extraWaiterPrice)} c/u`;
@@ -203,13 +197,51 @@
     return guests * rules.drinkBarPerGuest;
   }
 
+  function selectedDecoration() {
+    const chosen = form.querySelector("input[name='decoration']:checked");
+    return cfg.decorationById(chosen?.value || "none");
+  }
+
+  function decorationCost(guests) {
+    return cfg.decorationCost(selectedDecoration(), guests);
+  }
+
   function eventTotal(plate, guests) {
-    return plate.unitPrice * guests + waiterCost() + drinkBarCost(guests);
+    return plate.unitPrice * guests + waiterCost() + drinkBarCost(guests) + decorationCost(guests);
   }
 
   function renderWaiters() {
     const count = document.getElementById("waiter-count");
     if (count) count.textContent = String(extraWaiters);
+    const note = document.getElementById("waiter-total-note");
+    if (note) {
+      const totalWaiters = (rules.includedWaiters || 1) + extraWaiters;
+      note.textContent = extraWaiters
+        ? `Total de meseros: ${totalWaiters} (${rules.includedWaiters} incluido y ${extraWaiters} adicional${extraWaiters > 1 ? "es" : ""}).`
+        : `Total de meseros: ${totalWaiters} incluido.`;
+    }
+  }
+
+  function renderDecorationOptions() {
+    const root = document.getElementById("decoration-options");
+    if (!root) return;
+    const current = form.querySelector("input[name='decoration']:checked")?.value || "none";
+    root.innerHTML = cfg.decorationList()
+      .map((option) => {
+        const billing = cfg.decorationBillingLabel(option);
+        return `<label>
+          <input type="radio" name="decoration" value="${option.id}" ${option.id === current ? "checked" : ""}>
+          <span>${option.label}${billing ? ` · ${billing}` : ""}</span>
+        </label>`;
+      })
+      .join("");
+    syncDecorationNotes();
+  }
+
+  function syncDecorationNotes() {
+    const wrap = document.getElementById("decoration-notes-wrap");
+    if (!wrap) return;
+    wrap.hidden = selectedDecoration().id !== "custom";
   }
 
   function currentPlate() {
@@ -239,12 +271,17 @@
     const food = plate.unitPrice * guests;
     const waiters = waiterCost();
     const drinks = drinkBarCost(guests);
+    const decoration = selectedDecoration();
+    const decorAmount = decorationCost(guests);
+    const total = food + waiters + drinks + decorAmount;
     const incomplete = mode === "build" && !builderMeetsMinimum(plate);
     if (mode === "build") updateBuilderGap();
+    syncDecorationNotes();
     updateSubmitState(plate);
     plateName.textContent = plate.name;
     const totalBox = document.querySelector(".total-box");
     const totalCaption = document.getElementById("total-caption");
+    const estimateNote = document.getElementById("estimate-note");
     totalBox?.classList.toggle("is-incomplete", incomplete);
     if (incomplete) {
       const missing = rules.builderMinimumPrice - plate.unitPrice;
@@ -254,44 +291,56 @@
         unitCaption.textContent = `Valor actual del plato: ${money(plate.unitPrice)}. Te faltan ${money(missing)} para el mínimo de ${money(rules.builderMinimumPrice)} por persona.`;
       }
     } else {
-      if (totalCaption) totalCaption.textContent = "Inversión estimada";
-      totalLabel.textContent = money(food + waiters + drinks);
+      if (totalCaption) totalCaption.textContent = "Total estimado";
+      totalLabel.textContent = money(total);
       if (unitCaption) {
-        const foodLine =
-          Number.isFinite(plate.unitPrice) && plate.unitPrice > 0
-            ? `${money(plate.unitPrice)} por persona · ${guests} invitados`
-            : "Agrega ingredientes para ver el costo";
-        const waiterLine = extraWaiters
-          ? ` · ${extraWaiters} mesero${extraWaiters > 1 ? "s" : ""} adicional${extraWaiters > 1 ? "es" : ""} (${money(waiters)})`
-          : "";
-        const drinkLine = drinks ? ` · barra de bebidas (${money(drinks)})` : "";
-        unitCaption.textContent = foodLine + waiterLine + drinkLine;
+        unitCaption.textContent = `${money(plate.unitPrice)} por persona · ${guests} invitados · menú ${money(food)}`;
       }
     }
-    const waiterRows = extraWaiters
-      ? `<div class="plate-item"><strong>${extraWaiters}</strong><span>mesero${extraWaiters > 1 ? "s" : ""} adicional${extraWaiters > 1 ? "es" : ""}</span><em>${money(waiters)}</em></div>`
-      : "";
-    const drinkRow = drinks
-      ? `<div class="plate-item"><strong>1</strong><span>barra de bebidas</span><em>${money(drinks)}</em></div>`
-      : "";
-    plateBox.innerHTML =
-      (plate.items.length
-        ? plate.items
-            .map((item) => {
-              const extra = item.line ? `<em>${money(item.line)}</em>` : "";
-              const cls = item.highlight ? " plate-item-main" : "";
-              return `<div class="plate-item${cls}"><strong>${item.qty}</strong><span>${item.name}</span>${extra}</div>`;
-            })
-            .join("")
-        : `<p class="muted">Todavía no hay ingredientes en el plato.</p>`) +
-      `<div class="included-box">
-        <p class="eyebrow">Servicios por confirmar</p>
-        ${PENDING_SERVICES.map(
+    if (estimateNote) {
+      estimateNote.textContent = decoration.id === "custom"
+        ? "Este total no incluye el valor de la decoración personalizada, que será confirmado en la propuesta final."
+        : "Este valor es una estimación inicial. La propuesta final puede variar según la fecha, ubicación, número de invitados, transporte y servicios adicionales.";
+    }
+
+    const menuRows = plate.items.length
+      ? plate.items
+          .map((item) => {
+            const extra = item.line ? `<em>${money(item.line)}</em>` : "";
+            const cls = item.highlight ? " plate-item-main" : "";
+            return `<div class="plate-item${cls}"><strong>${item.qty}</strong><span>${item.name}</span>${extra}</div>`;
+          })
+          .join("")
+      : `<p class="muted">Todavía no hay ingredientes en el plato.</p>`;
+
+    const extraRows = [
+      extraWaiters
+        ? `<div class="plate-item"><strong>${extraWaiters}</strong><span>mesero${extraWaiters > 1 ? "s" : ""} adicional${extraWaiters > 1 ? "es" : ""}</span><em>${money(waiters)}</em></div>`
+        : "",
+      drinks
+        ? `<div class="plate-item"><strong>1</strong><span>barra de bebidas</span><em>${money(drinks)}</em></div>`
+        : "",
+      decoration.id === "none"
+        ? `<div class="plate-item"><strong>—</strong><span>Sin decoración</span><em>${money(0)}</em></div>`
+        : `<div class="plate-item"><strong>1</strong><span>${decoration.label}${cfg.decorationBillingLabel(decoration) ? ` · ${cfg.decorationBillingLabel(decoration)}` : ""}</span><em>${cfg.decorationHasPrice(decoration) ? money(decorAmount) : "Por cotizar"}</em></div>`,
+    ].filter(Boolean).join("");
+
+    plateBox.innerHTML = `
+      <div class="summary-block">
+        <p class="eyebrow">Menú</p>
+        ${menuRows}
+        <div class="plate-item"><strong>${guests}</strong><span>${money(plate.unitPrice)} por persona</span><em>${Number.isFinite(food) ? money(food) : "—"}</em></div>
+      </div>
+      <div class="summary-block included-box">
+        <p class="eyebrow">Incluido en la propuesta</p>
+        ${INCLUDED_SERVICES.map(
           (item) =>
-            `<div class="plate-item"><strong>${item.status}</strong><span>${item.name}</span></div>`
+            `<div class="plate-item"><strong>Incluido</strong><span>${item.label}</span></div>`
         ).join("")}
-        ${waiterRows}
-        ${drinkRow}
+      </div>
+      <div class="summary-block">
+        <p class="eyebrow">Adicionales</p>
+        ${extraRows}
       </div>`;
   }
 
@@ -429,7 +478,9 @@
   });
 
   form.addEventListener("input", render);
+  form.addEventListener("change", render);
   applyCommercialRules();
+  renderDecorationOptions();
   renderBuilder();
   renderWaiters();
   render();
@@ -480,6 +531,14 @@
       forms.setFieldError(guestsField, `Indica al menos ${rules.minimumGuests} invitados.`);
       firstError.push(guestsField);
     }
+    const decoration = selectedDecoration();
+    if (decoration.id === "custom") {
+      const notes = form.querySelector("#decoration-notes");
+      if (!notes?.value.trim()) {
+        forms.setFieldError(notes, "Describe la decoración personalizada que necesitas.");
+        firstError.push(notes);
+      }
+    }
     if (mode === "price") {
       const price = Number(priceInput.value);
       if (!price || price < rules.plateMin) {
@@ -515,10 +574,10 @@
   }
 
   function buildWhatsAppMessage(data, plate, guests) {
-    const extras = [...form.querySelectorAll("input[name='extras']:checked")].map(
-      (el) => el.value
-    );
-    const otherExtras = extras.filter((item) => item !== "Barra de bebidas");
+    const decoration = selectedDecoration();
+    const decorAmount = decorationCost(guests);
+    const customNotes = String(data.get("decorationNotes") || "").trim();
+    const food = plate.unitPrice * guests;
     const estimate = money(eventTotal(plate, guests));
 
     return [
@@ -546,20 +605,24 @@
           ? `• ${item.qty} ${item.name} (${money(item.line)})`
           : `• ${item.qty} ${item.name}`
       ),
+      `Subtotal menú: ${money(food)}`,
       "",
-      "Servicios adicionales",
-      "Servicios solicitados por confirmar: parrillero, personal de servicio, mesas, sillas, montaje y transporte según las condiciones del evento.",
-      extraWaiters
-        ? `Meseros adicionales: ${extraWaiters} (${money(waiterCost())})`
-        : "Meseros adicionales: no",
-      drinkBarCost(guests)
-        ? `Barra de bebidas: ${money(drinkBarCost(guests))}`
-        : "Barra de bebidas: no",
-      otherExtras.length ? `Otros adicionales: ${otherExtras.join(", ")}` : null,
+      "Servicios incluidos:",
+      "- 1 parrillero",
+      "- 1 mesero",
+      "- Mesas y sillas para los invitados",
       "",
-      `Inversión estimada: ${estimate}`,
+      "Servicios adicionales:",
+      `- Meseros adicionales: ${extraWaiters}${extraWaiters ? ` (${money(waiterCost())})` : ""}`,
+      `- Barra de bebidas: ${drinkBarCost(guests) ? money(drinkBarCost(guests)) : "No"}`,
+      `- Decoración: ${decoration.label}`,
+      `- Valor de decoración: ${cfg.decorationHasPrice(decoration) ? money(decorAmount) : decoration.id === "none" ? money(0) : "Por cotizar"}`,
+      decoration.id === "custom" ? `- Descripción de decoración personalizada: ${customNotes}` : null,
       "",
-      "Advertencia: este valor es una estimación inicial, pendiente de confirmación según fecha, ubicación, número de invitados, transporte, montaje y servicios seleccionados.",
+      `Total estimado: ${estimate}`,
+      decoration.id === "custom"
+        ? "Este total no incluye el valor de la decoración personalizada, que será confirmado en la propuesta final."
+        : "Advertencia: este valor es una estimación inicial, pendiente de confirmación según fecha, ubicación, número de invitados, transporte y servicios adicionales.",
       cfg.attributionLine() || null,
     ]
       .filter((line) => line !== null)
