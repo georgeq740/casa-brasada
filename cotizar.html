@@ -38,10 +38,24 @@
     <section>
       <div class="wrap form-grid">
         <form id="quote-form" class="panel" novalidate>
-          <fieldset>
+          <fieldset class="radio-group audience-options">
             <legend>¿Cotizas para una empresa o para una celebración personal?</legend>
-            <label><input type="radio" name="audience" value="empresa"> Empresa</label>
-            <label><input type="radio" name="audience" value="social"> Celebración personal</label>
+            <div class="radio-options-grid">
+              <label class="radio-option radio-option--company">
+                <input type="radio" name="audience" value="empresa">
+                <span>
+                  <strong>Empresa</strong>
+                  <small>Integraciones, bienestar y eventos corporativos.</small>
+                </span>
+              </label>
+              <label class="radio-option radio-option--social">
+                <input type="radio" name="audience" value="social">
+                <span>
+                  <strong>Celebración personal</strong>
+                  <small>Cumpleaños, matrimonios y reuniones familiares.</small>
+                </span>
+              </label>
+            </div>
           </fieldset>
 
           <div id="corporate-fields" hidden>
@@ -126,9 +140,9 @@
             <label><input id="drink-bar" type="checkbox" name="extras" value="Barra de bebidas"> <span id="drink-bar-text">Barra de bebidas</span></label>
           </fieldset>
 
-          <fieldset>
+          <fieldset class="radio-group">
             <legend>Decoración</legend>
-            <div id="decoration-options"></div>
+            <div id="decoration-options" class="radio-options-grid"></div>
             <div id="decoration-notes-wrap" hidden>
               <label for="decoration-notes">Describe la decoración que necesitas</label>
               <textarea id="decoration-notes" name="decorationNotes" rows="3"></textarea>
@@ -159,7 +173,7 @@
   <script src="js/config.js"></script>
   <script src="js/forms.js"></script>
   <script src="js/layout.js"></script>
-  <script src="js/cotizador.js?v=16"></script>
+  <script src="js/cotizador.js?v=17"></script>
   <script src="js/sw-register.js"></script>
 </body>
 </html>
