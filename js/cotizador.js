@@ -228,10 +228,12 @@
     const current = form.querySelector("input[name='decoration']:checked")?.value || "none";
     root.innerHTML = cfg.decorationList()
       .map((option) => {
-        const billing = cfg.decorationBillingLabel(option);
+        const billing = cfg.decorationHasPrice(option) ? cfg.decorationBillingLabel(option) : "";
         return `<label class="radio-option">
-          <input type="radio" name="decoration" value="${option.id}" ${option.id === current ? "checked" : ""}>
-          <span>
+          <span class="radio-option__control">
+            <input type="radio" name="decoration" value="${option.id}" ${option.id === current ? "checked" : ""}>
+          </span>
+          <span class="radio-option__copy">
             <strong>${option.label}</strong>
             ${billing ? `<small>${billing}</small>` : ""}
           </span>
