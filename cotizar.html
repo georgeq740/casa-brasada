@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=16">
 </head>
 <body data-page="cotizar">
   <header id="site-header"></header>
@@ -42,15 +42,19 @@
             <legend>¿Cotizas para una empresa o para una celebración personal?</legend>
             <div class="radio-options-grid">
               <label class="radio-option radio-option--company">
-                <input type="radio" name="audience" value="empresa">
-                <span>
+                <span class="radio-option__control">
+                  <input type="radio" name="audience" value="empresa">
+                </span>
+                <span class="radio-option__copy">
                   <strong>Empresa</strong>
                   <small>Integraciones, bienestar y eventos corporativos.</small>
                 </span>
               </label>
               <label class="radio-option radio-option--social">
-                <input type="radio" name="audience" value="social">
-                <span>
+                <span class="radio-option__control">
+                  <input type="radio" name="audience" value="social">
+                </span>
+                <span class="radio-option__copy">
                   <strong>Celebración personal</strong>
                   <small>Cumpleaños, matrimonios y reuniones familiares.</small>
                 </span>
@@ -142,7 +146,7 @@
 
           <fieldset class="radio-group">
             <legend>Decoración</legend>
-            <div id="decoration-options" class="radio-options-grid"></div>
+            <div id="decoration-options" class="radio-options-grid radio-options-grid--stack"></div>
             <div id="decoration-notes-wrap" hidden>
               <label for="decoration-notes">Describe la decoración que necesitas</label>
               <textarea id="decoration-notes" name="decorationNotes" rows="3"></textarea>
@@ -170,10 +174,10 @@
     </section>
   </main>
   <footer id="site-footer"></footer>
-  <script src="js/config.js"></script>
+  <script src="js/config.js?v=15"></script>
   <script src="js/forms.js"></script>
   <script src="js/layout.js"></script>
-  <script src="js/cotizador.js?v=17"></script>
+  <script src="js/cotizador.js?v=18"></script>
   <script src="js/sw-register.js"></script>
 </body>
 </html>

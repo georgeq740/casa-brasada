@@ -67,7 +67,7 @@ window.CASA_BRASADA = {
     },
     custom: {
       id: "custom",
-      label: "Decoración personalizada por cotizar",
+      label: "Decoración personalizada",
       price: null,
       billingType: "event",
     },
