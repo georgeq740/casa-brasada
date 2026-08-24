@@ -518,6 +518,33 @@ section { padding: 64px 0; }
 
 .page-hero h1 { font-size: clamp(2.6rem, 5vw, 4.25rem); max-width: 20ch; }
 
+.text-ember {
+  color: var(--ember);
+}
+
+[data-page="cotizar"] .page-hero .wrap {
+  width: min(var(--max), calc(100vw - 40px));
+  min-width: 0;
+}
+
+[data-page="cotizar"] .page-hero h1 {
+  max-width: 100%;
+  min-width: 0;
+  font-size: clamp(1.5rem, 2.2vw + 0.88rem, 3.15rem);
+  text-wrap: pretty;
+}
+
+[data-page="cotizar"] .page-hero h1 .text-ember {
+  white-space: nowrap;
+}
+
+[data-page="cotizar"] .page-hero .hero-copy {
+  width: 100%;
+  max-width: 700px;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 0.95fr 1.05fr;
@@ -1169,6 +1196,7 @@ textarea[aria-invalid="true"] {
   .hero p.lead,
   .hero-promise,
   .page-hero h1 { max-width: 100%; }
+  [data-page="cotizar"] .page-hero h1 { max-width: 100%; }
   .logo-text small { display: none; }
   .site-footer { padding-bottom: 100px; }
 }
