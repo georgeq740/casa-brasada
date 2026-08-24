@@ -69,7 +69,7 @@
       ],
       [
         "¿El servicio incluye mesas, sillas y meseros?",
-        "Depende de la propuesta. El cotizador muestra servicios disponibles, seleccionados y pendientes de confirmación.",
+        "Sí. Cada propuesta incluye 1 parrillero, 1 mesero y las mesas y sillas necesarias según el número de invitados. Puedes agregar meseros adicionales si lo necesitas.",
       ],
       [
         "¿La cotización de la página es definitiva?",

@@ -103,27 +103,36 @@
           </div>
 
           <div class="included-note">
-            <p>Servicios disponibles según la propuesta: parrillero, meseros, mesas, sillas y montaje. Su disponibilidad y costo final se confirman según la fecha, ubicación y condiciones del evento.</p>
+            <p>Cada propuesta incluye 1 parrillero, 1 mesero y las mesas y sillas necesarias según el número de invitados. Solo se suman meseros u otros servicios adicionales que elijas.</p>
           </div>
 
           <p id="waiter-label">Meseros adicionales</p>
           <p class="muted" id="waiter-help"></p>
           <div class="builder-row">
             <div>
-              <strong>Mesero adicional</strong>
+              <strong>Meseros adicionales</strong>
               <small id="waiter-rate"></small>
+              <small id="waiter-total-note"></small>
             </div>
             <div class="stepper">
-              <button type="button" id="waiter-minus" aria-label="Quitar mesero">−</button>
+              <button type="button" id="waiter-minus" aria-label="Quitar mesero adicional">−</button>
               <span id="waiter-count" aria-labelledby="waiter-label">0</span>
-              <button type="button" id="waiter-plus" aria-label="Agregar mesero">+</button>
+              <button type="button" id="waiter-plus" aria-label="Agregar mesero adicional">+</button>
             </div>
           </div>
 
           <fieldset>
             <legend>Adicionales</legend>
             <label><input id="drink-bar" type="checkbox" name="extras" value="Barra de bebidas"> <span id="drink-bar-text">Barra de bebidas</span></label>
-            <label><input type="checkbox" name="extras" value="Decoración"> Decoración</label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Decoración</legend>
+            <div id="decoration-options"></div>
+            <div id="decoration-notes-wrap" hidden>
+              <label for="decoration-notes">Describe la decoración que necesitas</label>
+              <textarea id="decoration-notes" name="decorationNotes" rows="3"></textarea>
+            </div>
           </fieldset>
 
           <label for="notes">Ubicación o notas</label>
@@ -140,7 +149,7 @@
             <p class="muted" id="total-caption">Inversión estimada</p>
             <p class="muted" id="unit-caption"></p>
             <p class="price-display" id="total-label">$1.600.000</p>
-            <p class="estimate-note">Este valor es una estimación inicial. La propuesta final puede variar según la fecha, ubicación, número de invitados, transporte, montaje y servicios seleccionados.</p>
+            <p class="estimate-note" id="estimate-note">Este valor es una estimación inicial. La propuesta final puede variar según la fecha, ubicación, número de invitados, transporte y servicios adicionales.</p>
           </div>
         </aside>
       </div>
@@ -150,7 +159,7 @@
   <script src="js/config.js"></script>
   <script src="js/forms.js"></script>
   <script src="js/layout.js"></script>
-  <script src="js/cotizador.js?v=15"></script>
+  <script src="js/cotizador.js?v=16"></script>
   <script src="js/sw-register.js"></script>
 </body>
 </html>

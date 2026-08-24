@@ -705,6 +705,25 @@ label:has(input[type="checkbox"]) {
   border-top: 1px solid var(--line);
 }
 
+.summary-block {
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.summary-block .eyebrow {
+  margin-bottom: 8px;
+}
+
+#decoration-options label {
+  align-items: flex-start;
+}
+
+#waiter-total-note {
+  display: block;
+  margin-top: 4px;
+}
+
 .total-box {
   margin-top: 18px;
   padding: 16px;
